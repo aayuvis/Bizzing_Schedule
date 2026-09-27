@@ -27,6 +27,7 @@ npm run check
 git fetch -q origin gh-pages 2>/dev/null || true
 PARENT=$(git rev-parse -q --verify origin/gh-pages || true)
 
+cd "$(git rev-parse --show-toplevel)"   # index paths are repo-root relative
 SCRATCH=$(mktemp -u); trap 'rm -f "$SCRATCH"' EXIT
 export GIT_INDEX_FILE="$SCRATCH"
 git read-tree --empty
