@@ -1,0 +1,5 @@
+tools/art/raw/
+node_modules/
+app/build/
+.DS_Store
+shots/
