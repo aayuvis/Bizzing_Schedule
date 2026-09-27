@@ -12,7 +12,7 @@ function copySW() {
 
 export default defineConfig({
   /* Relative base: the build is served from a sub-path
-     (aayuvis.github.io/bizzingindia.com/schedule/) and must not assume a root. */
+     (aayuvis.github.io/Bizzing_Schedule/) and must not assume a root. */
   base: './',
   plugins: [copySW()],
   build: { outDir: 'build', emptyOutDir: true, target: 'es2020' },

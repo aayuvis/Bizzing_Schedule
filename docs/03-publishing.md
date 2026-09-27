@@ -1,26 +1,22 @@
 # Publishing
 
-**Live:** <https://aayuvis.github.io/bizzingindia.com/schedule/>
-**Sample family:** <https://aayuvis.github.io/bizzingindia.com/schedule/?demo> (grown-ups PIN `1234`)
-
-The app is served from **Bizzing India's** GitHub Pages site, in a `schedule/` folder, so that it
-shares an origin with the other Bizzing apps (which is what lets it read their minutes — see
-docs/02).
+**Live:** <https://aayuvis.github.io/Bizzing_Schedule/>
+**Sample family:** <https://aayuvis.github.io/Bizzing_Schedule/?demo> (grown-ups PIN `1234`)
 
 ```bash
-cd app && ./deploy.sh        # test → build → browser check → publish schedule/ only
+cd app && ./deploy.sh        # test → build → browser check → publish to this repo's gh-pages
 ```
 
-`deploy.sh` builds a gh-pages commit on top of whatever is live, replacing only `schedule/`, and
-refuses if anything outside `schedule/` would change or if the staged file count differs from
-the build.
+Served by GitHub Pages from the `gh-pages` branch of `aayuvis/Bizzing_Schedule` (Settings →
+Pages → Deploy from a branch → `gh-pages` / root). The build is path-agnostic (`base: './'`) and
+the browser check serves it at `/Bizzing_Schedule/` so a relative-path slip fails here first.
 
-## The one hazard
+## Why its own site
 
-Bizzing India's own `tools/deploy.sh` rebuilds gh-pages **wholesale** from `HEAD:app`. A deploy
-of India from a branch that does not contain `app/schedule/` will therefore remove this app from
-the site. It does not damage anything — run `./deploy.sh` here again and it is back in seconds.
+It first lived in Bizzing India's gh-pages under `schedule/`. India's deploy rebuilds that
+whole branch from India's `app/` folder, so every India deploy removed Schedule. Separate repos
+publish separately; neither can break the other.
 
-The permanent fix, for whoever next touches India's deploy script: carry the previous
-gh-pages `schedule/` subtree forward when `app/schedule/` does not exist (read it from
-`origin/gh-pages:schedule` into the scratch index before `write-tree`).
+It still shares the `aayuvis.github.io` origin with every Bizzing app, which is what lets it read
+their minutes (docs/02). A move to a custom domain would break that — at that point the feed
+moves to a server.

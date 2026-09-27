@@ -6,8 +6,8 @@ A day planner, task board and goal tracker for busy, ambitious kids 6–14 — s
 Bizzing, friends, TV and rest in one place that feels like play — and a grown-ups' page that
 shows the shape of the week without making anyone the scheduler.
 
-- **Live:** <https://aayuvis.github.io/bizzingindia.com/schedule/>
-- **Try the sample family:** <https://aayuvis.github.io/bizzingindia.com/schedule/?demo> (grown-ups PIN `1234`)
+- **Live:** <https://aayuvis.github.io/Bizzing_Schedule/>
+- **Try the sample family:** <https://aayuvis.github.io/Bizzing_Schedule/?demo> (grown-ups PIN `1234`)
 
 | | |
 |---|---|

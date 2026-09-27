@@ -6,7 +6,7 @@ Vanilla ES modules + Vite, `state → render()` + `data-act` dispatch (the famil
 npm install
 npm run dev                      # http://localhost:8090  (add ?demo for the sample family)
 npm test                         # engine
-npm run build && npm run check   # the built app in Chromium, desktop + phone, at /bizzingindia.com/schedule/
+npm run build && npm run check   # the built app in Chromium, desktop + phone, at /Bizzing_Schedule/
 ./deploy.sh                      # publish (see ../docs/03-publishing.md)
 ```
 

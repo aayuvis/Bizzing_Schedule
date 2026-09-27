@@ -8,9 +8,8 @@ Read this first, then [CONCEPT.md](CONCEPT.md), then [app/README.md](app/README.
 6–14, with a grown-ups' page that gives peace of mind without making the parent the scheduler.
 Fifth app in the Bizzing family (Bee, India, Finance, Maths).
 
-**Live:** <https://aayuvis.github.io/bizzingindia.com/schedule/> — see
-[docs/03-publishing.md](docs/03-publishing.md) for why it lives under India's site, and the one
-hazard that comes with it.
+**Live:** <https://aayuvis.github.io/Bizzing_Schedule/> — its own
+GitHub Pages site, published from this repo's `gh-pages` branch ([docs/03-publishing.md](docs/03-publishing.md)).
 
 ## Working style (the user's pace)
 
@@ -82,16 +81,17 @@ assertion that has never failed has not been shown to work.
 
 ## Ship
 
-Commit first, then `cd app && ./deploy.sh`. It publishes `schedule/` into Bizzing India's
-gh-pages additively and refuses to touch anything else.
+Commit first, then `cd app && ./deploy.sh`. It publishes `app/build` to this repo's `gh-pages`
+and touches no other repo. (It briefly lived in Bizzing India's gh-pages under `schedule/`; India's
+deploy rebuilds its site wholesale from its own `app/`, so it was wiped on every India deploy.
+Separate repos, separate sites.)
 
 ## Where to pick up
 
 1. **Wire the writer into the siblings** — `integration/bizzing-activity.js`, one import each in
    Bee, Maths, India, Finance, plus a line on each privacy page (docs/02).
-2. **Fix India's deploy** to carry `schedule/` forward (docs/03).
-3. **Watch real children use it** before tuning any wording (CONCEPT §8).
-4. **Capacitor iPhone build** with local notifications (docs/01).
+2. **Watch real children use it** before tuning any wording (CONCEPT §8).
+3. **Capacitor iPhone build** with local notifications (docs/01).
 
 ## Branch
 

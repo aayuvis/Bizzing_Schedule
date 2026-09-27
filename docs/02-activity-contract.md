@@ -9,7 +9,7 @@ Every Bizzing app is published under one origin — `aayuvis.github.io` — so t
 
 | app | live at |
 |---|---|
-| Bizzing Schedule | `aayuvis.github.io/bizzingindia.com/schedule/` |
+| Bizzing Schedule | `aayuvis.github.io/Bizzing_Schedule/` |
 | Bizzing India | `aayuvis.github.io/bizzingindia.com/` |
 | Bizzing Maths | `aayuvis.github.io/Bizzing-Maths/` |
 | Bizzing Finance | `aayuvis.github.io/bizzingfinance/` |

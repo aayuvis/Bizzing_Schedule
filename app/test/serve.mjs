@@ -3,7 +3,7 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
-export const BASE = '/bizzingindia.com/schedule/';
+export const BASE = '/Bizzing_Schedule/';
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 export function serve(root, port = 0) {
   return new Promise((res) => {

@@ -7,9 +7,8 @@
    deleted), so the page is never cache-first. Bump CACHE when the strategy
    changes.
 
-   Scope: this worker lives at /bizzingindia.com/schedule/ and only answers for
-   that path. Bizzing India's own worker sits one level up; the more specific
-   scope wins, so each app keeps its own offline copy. */
+   Scope: this worker lives at /Bizzing_Schedule/ and only answers for that
+   path, so it never touches another Bizzing app on the same origin. */
 
 const CACHE = 'bizzing-schedule-v1';
 const ENTRY = ['./', './index.html', './manifest.webmanifest', './icon-192.png'];

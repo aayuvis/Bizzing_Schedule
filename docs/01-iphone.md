@@ -2,7 +2,7 @@
 
 ## Now: an installable PWA
 
-`aayuvis.github.io/bizzingindia.com/schedule/` → Share → **Add to Home Screen**. It runs
+`aayuvis.github.io/Bizzing_Schedule/` → Share → **Add to Home Screen**. It runs
 full-screen, works offline (service worker), and shows nudges **while it is open**. Web push on
 iOS (16.4+) needs a push server; there isn't one, and a child's planner should not need one.
 
