@@ -28,24 +28,36 @@ import { hive as vHive } from './views/hive.js';
 import { grown as vGrown, gate } from './views/grown.js';
 import { modal, onboarding, quickPreview } from './views/modals.js';
 import { esc, icon, avatar } from './ui.js';
+import { suggestIcon, findIcons, iconOf } from './icons.js';
 
 const $app = document.getElementById('app');
-
-const S = {
-  h: Store.loadHousehold(),
-  view: 'today', grown: false, grownTab: 'overview', kudosKid: null,
-  modal: null, toast: null, setup: false,
-  boardScope: 'today', boardFilter: null, weekOf: ymd(),
-  device: { nudges: Store.loadDevice('nudges', false) },
-  nudged: new Set(), celebrate: [],
-};
-const VIEWS = ['today', 'board', 'week', 'goals', 'hive', 'grown'];
-const TITLES = { today: 'Today', board: 'Board', week: 'Week', goals: 'Goals', hive: 'My Hive', grown: 'Grown-ups' };
 
 /* The clock the whole render agrees on. ?now=YYYY-MM-DDTHH:MM pins it, so a
    test (or a screenshot) can look at 5pm on a Tuesday whenever it runs. */
 const PIN = new URLSearchParams(location.search).get('now');
 const clockNow = () => (PIN ? new Date(PIN) : new Date());
+
+const S = {
+  h: Store.loadHousehold(),
+  view: 'today', grown: false, grownTab: 'overview', kudosKid: null,
+  modal: null, toast: null, setup: false,
+  boardScope: 'today', boardFilter: null, weekOf: ymd(clockNow()),
+  device: { nudges: Store.loadDevice('nudges', false), theme: Store.loadDevice('theme', 'honey') },
+  nudged: new Set(), celebrate: [],
+};
+/* Three looks, one tap each. A device preference, never part of the household. */
+const THEMES = [['honey', '🍯', 'Honey'], ['ocean', '🌊', 'Ocean'], ['night', '🌙', 'Night']];
+const THEME_BAR = { honey: '#2A1B4E', ocean: '#0B2545', night: '#120D22' };
+function applyTheme(t) {
+  S.device.theme = THEMES.some(([id]) => id === t) ? t : 'honey';
+  document.documentElement.dataset.theme = S.device.theme;
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', THEME_BAR[S.device.theme]);
+}
+const themePills = (cls = '') => `<div class="themes ${cls}" role="radiogroup" aria-label="Theme">${THEMES.map(([id, e, l]) =>
+  `<button role="radio" aria-checked="${S.device.theme === id}" class="${S.device.theme === id ? 'on' : ''}" data-act="theme" data-v="${id}" title="${l}">${e}<span class="tl"> ${l}</span></button>`).join('')}</div>`;
+const VIEWS = ['today', 'board', 'week', 'goals', 'hive', 'grown'];
+const TITLES = { today: 'Today', board: 'Board', week: 'Week', goals: 'Goals', hive: 'My Hive', grown: 'Grown-ups' };
+
 const ctx = () => { const d = clockNow(); return { S, h: S.h, kid: M.activeKid(S.h), today: ymd(d), now: nowMin(d) }; };
 
 let undoFn = null;
@@ -79,7 +91,7 @@ const keep = ['.wk-wrap', '.kanban'];
 function render() {
   const scroll = keep.map((s) => { const e = $app.querySelector(s); return e ? [e.scrollLeft, e.scrollTop] : null; });
   const hadModal = !!$app.querySelector('.sheet');
-  if (!S.h || !S.h.kids.length) { $app.innerHTML = onboarding(S) + modal({ ...ctx(), S }); afterRender(hadModal); return; }
+  if (!S.h || !S.h.kids.length) { $app.innerHTML = themePills('onb-themes') + onboarding(S) + modal({ ...ctx(), S }); afterRender(hadModal); return; }
   const c = ctx();
   const V = { today: vToday, board: vBoard, week: vWeek, goals: vGoals, hive: vHive, grown: S.grown ? vGrown : gate };
   const openCount = M.tasksFor(c.kid, 'today', c.today).filter((t) => t.status !== 'done').length;
@@ -108,6 +120,7 @@ function render() {
         <button class="top-kid" data-act="kidMenu">${avatar(c.kid.avatar)}<b>${esc(c.kid.name)}</b>${S.h.kids.length > 1 ? icon('right', 'rot') : ''}</button>
         <h1 class="top-t">${TITLES[S.view]}</h1>
         <button class="top-search" data-act="quick">${icon('search')}<span>Add anything… <em>piano mon wed 5pm</em></span><kbd>⌘K</kbd></button>
+        ${themePills()}
         <div class="top-r">
           <button class="icon-btn m-only" data-act="go" data-v="hive" aria-label="My Hive">${icon('hive')}</button>
           <button class="icon-btn m-only" data-act="go" data-v="grown" aria-label="Grown-ups">${icon('grown')}</button>
@@ -180,6 +193,16 @@ const ACT = {
   help: () => { S.modal = { type: 'help' }; render(); },
   close, closeBg: (d, el, e) => { if (e.target === el && S.modal?.type !== 'focus') close(); },
   undo: () => { if (undoFn) { undoFn(); undoFn = null; S.toast = null; save(); render(); renderToast(); } },
+
+  theme: (d) => { applyTheme(d.v); Store.saveDevice('theme', S.device.theme); render(); },
+
+  /* icon picker */
+  iconOpen: (d, el) => { const pop = el.nextElementSibling; pop.hidden = !pop.hidden; if (!pop.hidden) pop.querySelector('.icon-q').focus(); },
+  iconPick: (d, el) => {
+    const f = el.closest('.iconf');
+    f.querySelector('input[type=hidden]').value = d.v; f.querySelector('.iconf-b').textContent = d.v;
+    f.dataset.auto = '0'; f.querySelector('.iconf-pop').hidden = true; f.querySelector('.iconf-b').focus();
+  },
 
   /* check-ins */
   mark: (d, el) => {
@@ -318,8 +341,8 @@ const FORM = {
   quick: (v, f) => {
     const c = ctx(); const text = (v.q || '').trim(); if (!text) return;
     const p = parse(text, c.today);
-    if (p.kind === 'task') M.addTask(c.kid, { title: p.title || text, cat: p.cat, due: p.date, pri: p.pri, by: S.grown ? 'grown' : 'kid' }, c.today);
-    else M.addRoutine(c.kid, { title: p.title || text, cat: p.cat, days: p.days, date: p.kind === 'event' ? p.date : null, start: p.start, dur: p.dur, by: S.grown ? 'grown' : 'kid' }, c.today);
+    if (p.kind === 'task') M.addTask(c.kid, { title: p.title || text, icon: suggestIcon(p.title), cat: p.cat, due: p.date, pri: p.pri, by: S.grown ? 'grown' : 'kid' }, c.today);
+    else M.addRoutine(c.kid, { title: p.title || text, icon: suggestIcon(p.title), cat: p.cat, days: p.days, date: p.kind === 'event' ? p.date : null, start: p.start, dur: p.dur, by: S.grown ? 'grown' : 'kid' }, c.today);
     save();
     if (S.modal?.type === 'huddle') { f.q.value = ''; f.querySelector('#qa-prev').innerHTML = ''; render(); }
     else { S.modal = null; render(); }
@@ -328,7 +351,7 @@ const FORM = {
   quickTask: (v, f) => {
     const c = ctx(); if (!v.t.trim()) return;
     const p = parse(v.t, c.today);
-    M.addTask(c.kid, { title: p.title || v.t.trim(), cat: p.cat, due: p.date || (S.view === 'today' || S.boardScope === 'today' ? c.today : null), pri: p.pri, by: S.grown ? 'grown' : 'kid' }, c.today);
+    M.addTask(c.kid, { title: p.title || v.t.trim(), icon: suggestIcon(p.title || v.t), cat: p.cat, due: p.date || (S.view === 'today' || S.boardScope === 'today' ? c.today : null), pri: p.pri, by: S.grown ? 'grown' : 'kid' }, c.today);
     save(); render();
     const inp = $app.querySelector(`form[data-form="quickTask"] input`); if (inp) inp.focus();
   },
@@ -336,7 +359,7 @@ const FORM = {
     const c = ctx(), k = kidOf(v.kid);
     const days = [0, 1, 2, 3, 4, 5, 6].filter((i) => v[`d${i}`]);
     const once = v.rep === 'once';
-    const data = { title: v.title.trim(), cat: v.cat || 'play', start: hm(v.start), dur: +v.dur, days: once ? [] : days.length ? days : [0, 1, 2, 3, 4], date: once ? v.date : null, app: v.app || null };
+    const data = { title: v.title.trim(), icon: v.icon || null, cat: v.cat || 'play', start: hm(v.start), dur: +v.dur, days: once ? [] : days.length ? days : [0, 1, 2, 3, 4], date: once ? v.date : null, app: v.app || null };
     if (S.grown) { data.anchor = !!v.anchor; data.auto = !!v.auto; data.by = 'grown'; }
     if (v.id) {
       const r = k.routines.find((x) => x.id === v.id);
@@ -355,7 +378,7 @@ const FORM = {
     const sub = [];
     for (let i = 0; `st${i}` in v; i++) if (v[`st${i}`].trim()) sub.push({ t: v[`st${i}`].trim(), done: !!v[`sd${i}`] });
     if (v.stnew && v.stnew.trim()) sub.push({ t: v.stnew.trim(), done: false });
-    const data = { title: v.title.trim(), cat: v.cat || 'study', due: v.due || null, est: v.est ? +v.est : null, goalId: v.goalId || null, pri: v.pri ? 'high' : 'normal', sub };
+    const data = { title: v.title.trim(), icon: v.icon || null, cat: v.cat || 'study', due: v.due || null, est: v.est ? +v.est : null, goalId: v.goalId || null, pri: v.pri ? 'high' : 'normal', sub };
     if (v.id) Object.assign(k.tasks.find((x) => x.id === v.id), data);
     else M.addTask(k, { ...data, by: S.grown ? 'grown' : 'kid' }, c.today);
     save(); S.modal = null; render(); toast(v.id ? 'Saved' : `📝 ${data.title}`);
@@ -439,6 +462,16 @@ document.addEventListener('submit', (e) => {
 document.addEventListener('input', (e) => {
   const t = e.target;
   if (t.id === 'qa-input') { if (S.modal) S.modal.q = t.value; const p = document.getElementById('qa-prev'); if (p) p.innerHTML = t.value || S.modal?.type !== 'huddle' ? quickPreview(t.value, ctx().today) : ''; }
+  /* type to icon: while the child hasn't picked one by hand, the title chooses */
+  if (t.name === 'title') {
+    const f = t.closest('form')?.querySelector('.iconf[data-auto="1"]');
+    const e = f && suggestIcon(t.value);
+    if (e) { f.querySelector('input[type=hidden]').value = e; f.querySelector('.iconf-b').textContent = e; }
+  }
+  if (t.classList.contains('icon-q')) {
+    const show = new Set(findIcons(t.value));
+    t.nextElementSibling.querySelectorAll('button').forEach((b) => { b.hidden = !show.has(b.dataset.v); });
+  }
   if (t.dataset.out) { const o = document.getElementById(t.dataset.out); const n = +t.value; o.textContent = n < 60 ? `${n}m` : `${Math.floor(n / 60)}h${n % 60 ? ` ${n % 60}m` : ''}`; }
 });
 
@@ -560,7 +593,7 @@ setInterval(() => {
     for (const b of M.blocksFor(c.kid, c.today)) {
       const key = `${c.today}:${b.r.id}`;
       if (b.start - c.now > 0 && b.start - c.now <= 5 && !S.nudged.has(key) && b.r.cat !== 'school') {
-        S.nudged.add(key); notify(`${CATS[b.r.cat].emoji} ${b.r.title} in ${b.start - c.now} min`, `${clock(b.start)} – ${clock(b.start + b.dur)}`);
+        S.nudged.add(key); notify(`${iconOf(b.r)} ${b.r.title} in ${b.start - c.now} min`, `${clock(b.start)} – ${clock(b.start + b.dur)}`);
       }
     }
     const open = M.dayScore(S.h, c.kid, c.today, c.today, c.now).open;
@@ -572,6 +605,7 @@ setInterval(() => {
 
 /* ─── boot ───────────────────────────────────────────────────────────── */
 
+applyTheme(S.device.theme);
 const start = location.hash.slice(1);
 if (VIEWS.includes(start)) S.view = start;
 if (new URLSearchParams(location.search).has('demo') && !S.h) ACT.demo();

@@ -9,6 +9,7 @@ import { CATS, APPS, cat } from '../cats.js';
 import { weekStats, breathingRoom, goalProgress, blocksFor, BANDS } from '../model.js';
 import { seenApps, unassigned } from '../activity.js';
 import { esc, ring, pct, icon, avatar, plural, STICKERS } from '../ui.js';
+import { iconOf } from '../icons.js';
 
 export function gate(c) {
   const set = !!c.h.parent.pin;
@@ -87,7 +88,7 @@ function anchors(c) {
       <button class="btn sm" data-act="newRoutine" data-kid="${kid.id}" data-anchor="1">${icon('plus')} Add fixed time</button></div>
     <p class="muted small">Fixed times show a 🔒 to ${esc(kid.name)}: they can check them in but not move or delete them. Everything else is theirs to arrange.</p>
     <ul class="anchor-list">${kid.routines.filter((r) => r.anchor && !r.until).map((r) => `<li style="--c:${cat(r.cat).color}">
-      <span class="dot" style="background:${cat(r.cat).color}"></span><b>${cat(r.cat).emoji} ${esc(r.title)}</b>
+      <span class="dot" style="background:${cat(r.cat).color}"></span><b>${iconOf(r)} ${esc(r.title)}</b>
       <span class="muted">${r.date ? r.date : r.days.length === 7 ? 'Every day' : r.days.map((d) => DAY_SHORT[d]).join(' ')} · ${clock(r.start)}–${clock(r.start + r.dur)}</span>
       ${r.auto ? '<span class="loz sm">counts itself</span>' : ''}
       <button class="icon-btn" data-act="editRoutine" data-id="${r.id}" data-kid="${kid.id}" aria-label="Edit">${icon('edit')}</button></li>`).join('') || '<li class="muted">None yet.</li>'}</ul>

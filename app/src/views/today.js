@@ -5,6 +5,7 @@ import { cat, CATS, APPS } from '../cats.js';
 import { blocksFor, status, dayScore, tasksFor, goalProgress, cheer, catMinutes } from '../model.js';
 import { appMinutes } from '../activity.js';
 import { esc, ring, icon, lozenge, plural, hexPath } from '../ui.js';
+import { iconOf } from '../icons.js';
 
 const GREET = { morning: 'Good morning', day: 'Good afternoon', evening: 'Good evening', night: 'Sleep well' };
 const QUICK = [['screen', 15, '📺 +15m TV'], ['play', 30, '🧩 +30m play'], ['move', 30, '⚽ +30m outside'], ['study', 20, '📚 +20m reading'], ['family', 20, '🏡 +20m helping']];
@@ -62,7 +63,7 @@ export function today(c) {
         ${tasks.length ? `<ul class="todo">${tasks.map((x) => `
           <li class="${x.status === 'done' ? 'is-done' : ''}">
             <button class="tick ${x.status === 'done' ? 'on' : ''}" data-act="toggleTask" data-id="${x.id}" aria-label="${x.status === 'done' ? 'Mark not done' : 'Mark done'}">${icon('check')}</button>
-            <button class="todo-t" data-act="editTask" data-id="${x.id}">${esc(x.title)}${x.pri === 'high' ? ' <span class="pri">!</span>' : ''}</button>
+            <button class="todo-t" data-act="editTask" data-id="${x.id}">${iconOf(x)} ${esc(x.title)}${x.pri === 'high' ? ' <span class="pri">!</span>' : ''}</button>
             <span class="dot" style="background:${cat(x.cat).color}" title="${cat(x.cat).name}"></span>
           </li>`).join('')}</ul>` : `<p class="muted small pad">No to-dos due today. ✨</p>`}
       </div>
@@ -92,13 +93,13 @@ function nowCard(c, cur, next) {
   if (!cur && !next) return `<div class="now-card calm"><div><p class="eyebrow">That's the day</p><h2>Nothing else planned. 🌙</h2></div></div>`;
   if (!cur) return `<div class="now-card" style="--c:${cat(next.r.cat).color};--s:${cat(next.r.cat).soft}">
       <div class="nc-l"><p class="eyebrow">Up next · in ${dur(next.start - now)}</p>
-      <h2>${cat(next.r.cat).emoji} ${esc(next.r.title)}</h2><p class="muted">${clock(next.start)} – ${clock(next.start + next.dur)}</p></div>
+      <h2>${iconOf(next.r)} ${esc(next.r.title)}</h2><p class="muted">${clock(next.start)} – ${clock(next.start + next.dur)}</p></div>
       <div class="nc-r"><button class="btn ghost" data-act="later" data-id="${next.r.id}">+15m later</button></div></div>`;
   const left = cur.start + cur.dur - now, done = cur.st.s === 'done';
   const prog = (now - cur.start) / cur.dur;
   return `<div class="now-card live" style="--c:${cat(cur.r.cat).color};--s:${cat(cur.r.cat).soft}">
     <div class="nc-l"><p class="eyebrow"><span class="pulse"></span> Now · ${dur(left)} left</p>
-      <h2>${cat(cur.r.cat).emoji} ${esc(cur.r.title)}</h2>
+      <h2>${iconOf(cur.r)} ${esc(cur.r.title)}</h2>
       <div class="bar"><i style="width:${Math.round(prog * 100)}%"></i></div>
       ${next ? `<p class="muted small">Then: ${esc(next.r.title)} at ${clock(next.start)}</p>` : ''}</div>
     <div class="nc-r">${cur.r.cat === 'school' || cur.r.app ? (cur.r.app ? `<span class="auto-tag">Counts itself from ${APPS[cur.r.app].name}</span>` : '') :
@@ -117,7 +118,7 @@ function block(c, b) {
     <div class="blk-time">${clock(b.start)}<small>${dur(b.dur)}</small></div>
     <div class="blk-body">
       <div class="blk-top">
-        <button class="blk-t" data-act="editRoutine" data-id="${r.id}">${x.emoji} ${esc(r.title)} ${r.anchor ? `<span class="anchor" title="Set by a grown-up">${icon('lock')}</span>` : ''}</button>
+        <button class="blk-t" data-act="editRoutine" data-id="${r.id}">${iconOf(r)} ${esc(r.title)} ${r.anchor ? `<span class="anchor" title="Set by a grown-up">${icon('lock')}</span>` : ''}</button>
         ${S[st.s] ? `<span class="st st-${st.s}">${S[st.s]}</span>` : ''}${how}
       </div>
       ${appBar}

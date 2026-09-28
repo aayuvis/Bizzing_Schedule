@@ -59,6 +59,16 @@ Inherited from the family, and it holds here:
 - **The PIN is a deterrent, not security**, and the screen says so.
 - **Never** put a real model identifier in commits, PRs, code, or any pushed artefact.
 
+### Look
+
+- **Three themes, as pills in the top bar** — 🍯 Honey, 🌊 Ocean, 🌙 Night. A device preference
+  (`Store.saveDevice('theme')`), never household data. Colours are tokens on `:root`; a new surface
+  uses `var(--card)`/`var(--bg)`, never a literal white, or Night breaks. `npm run check` audits the
+  contrast of every word on Today at night.
+- **Icons are emoji from `src/icons.js`.** Typing a title suggests one; the picker overrides it and
+  then typing stops changing it. Match whole words or word starts only (never substrings), and
+  generic words ("homework", "practice") count for less than the subject.
+
 ### Art
 
 - `tools/art/gen.py` paints places and medallions only — **no lettering, no digits, no people**.

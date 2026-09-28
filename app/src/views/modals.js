@@ -6,6 +6,7 @@ import { blocksFor, status, KR_SOURCES, BANDS } from '../model.js';
 import { parse } from '../parse.js';
 import { GOAL_TEMPLATES } from './goals.js';
 import { esc, icon, avatar, AVATARS, ring, plural } from '../ui.js';
+import { iconOf, iconField, suggestIcon } from '../icons.js';
 
 export function modal(c) {
   const m = c.S.modal;
@@ -28,7 +29,7 @@ export function quickPreview(text, today) {
   const kind = { routine: '🔁 Routine', event: '📅 One-off', task: '📝 To-do' }[p.kind];
   const when = p.kind === 'routine' ? `${p.days.length === 7 ? 'every day' : p.days.map((d) => DAY_SHORT[d]).join(', ')} · ${clock(p.start)} · ${dur(p.dur)}`
     : p.kind === 'event' ? `${niceDate(p.date, today)} · ${clock(p.start)} · ${dur(p.dur)}` : p.date ? `due ${niceDate(p.date, today).toLowerCase()}` : 'no date — on the board';
-  return `<div class="qa-prev" style="--c:${x.color};--s:${x.soft}"><span class="qa-kind">${kind}</span><b>${esc(p.title || '…')}</b><span class="muted">${when}</span><span class="loz" style="--c:${x.color};--s:${x.soft}">${x.emoji} ${x.name}</span>${p.pri === 'high' ? '<span class="pri">!</span>' : ''}<kbd>↵</kbd></div>`;
+  return `<div class="qa-prev" style="--c:${x.color};--s:${x.soft}"><span class="qa-kind">${kind}</span><b>${suggestIcon(p.title) || x.emoji} ${esc(p.title || '…')}</b><span class="muted">${when}</span><span class="loz" style="--c:${x.color};--s:${x.soft}">${x.emoji} ${x.name}</span>${p.pri === 'high' ? '<span class="pri">!</span>' : ''}<kbd>↵</kbd></div>`;
 }
 
 function quick(c, m) {
@@ -46,11 +47,11 @@ function routine(c, m) {
   const r = m.r || { title: '', cat: m.cat || 'study', days: m.days || [0, 1, 2, 3, 4], start: m.start ?? 17 * 60, dur: 30, anchor: !!m.anchor, auto: false, app: null };
   const locked = r.anchor && !c.S.grown && m.id;
   const one = !!(m.id ? r.date : m.oneOff);
-  return `${head(m.id ? (locked ? `${cat(r.cat).emoji} ${esc(r.title)}` : 'Edit plan') : m.anchor ? 'New fixed time' : 'New plan', locked ? '🔒 A grown-up set this one. You can check it in, but not move it.' : 'Something that happens at a time — once, or every week.')}
+  return `${head(m.id ? (locked ? `${iconOf(r)} ${esc(r.title)}` : 'Edit plan') : m.anchor ? 'New fixed time' : 'New plan', locked ? '🔒 A grown-up set this one. You can check it in, but not move it.' : 'Something that happens at a time — once, or every week.')}
   <form data-form="routine" class="form">
     <input type="hidden" name="id" value="${m.id || ''}"><input type="hidden" name="kid" value="${m.kid || ''}">
     <fieldset ${locked ? 'disabled' : ''}>
-    <label class="fld"><span>What</span><input name="title" value="${esc(r.title)}" placeholder="Piano practice" required maxlength="60" autofocus></label>
+    <div class="fld"><span>What</span><div class="title-row">${iconField('icon', r.icon, r.title, r.cat)}<input name="title" value="${esc(r.title)}" placeholder="Piano practice" required maxlength="60" autofocus aria-label="What"></div></div>
     <div class="fld"><span>Kind</span>${catPicker(r.cat)}</div>
     <div class="fld app-fld"><span>Counted by a Bizzing app?</span><select name="app"><option value="">No — I'll check it in</option>${Object.entries(APPS).map(([id, a]) => `<option value="${id}" ${r.app === id ? 'selected' : ''}>${a.emoji} ${a.name} counts it</option>`).join('')}</select></div>
     <div class="fld"><span>When</span>
@@ -79,7 +80,7 @@ function task(c, m) {
   return `${head(m.id ? 'Edit card' : 'New card', t.by === 'grown' ? 'Added by a grown-up' : '')}
   <form data-form="task" class="form">
     <input type="hidden" name="id" value="${m.id || ''}">
-    <label class="fld"><span>What needs doing</span><input name="title" value="${esc(t.title)}" required maxlength="80" placeholder="Science fair poster" autofocus></label>
+    <div class="fld"><span>What needs doing</span><div class="title-row">${iconField('icon', t.icon, t.title, t.cat)}<input name="title" value="${esc(t.title)}" required maxlength="80" placeholder="Science fair poster" autofocus aria-label="What needs doing"></div></div>
     <div class="fld"><span>Kind</span>${catPicker(t.cat)}</div>
     <div class="row2">
       <label class="fld"><span>Due</span><input type="date" name="due" value="${t.due || ''}"></label>
@@ -112,8 +113,7 @@ function goal(c, m) {
   return `${head(m.id ? 'Edit goal' : `${g.emoji} New goal`, 'An outcome, a reason, a few numbers that count themselves, and steps.')}
   <form data-form="goal" class="form">
     <input type="hidden" name="id" value="${m.id || ''}">
-    <div class="row2 g-top"><label class="fld em"><span>Icon</span><input name="emoji" value="${esc(g.emoji)}" maxlength="4"></label>
-      <label class="fld grow"><span>My goal</span><input name="title" value="${esc(g.title)}" required maxlength="70" placeholder="Make the district spelling bee final" autofocus></label></div>
+    <div class="fld"><span>My goal</span><div class="title-row">${iconField('emoji', m.id || g.title ? g.emoji : '', g.title, g.cat)}<input name="title" value="${esc(g.title)}" required maxlength="70" placeholder="Make the district spelling bee final" autofocus aria-label="My goal"></div></div>
     <label class="fld"><span>Why it matters to me</span><input name="why" value="${esc(g.why)}" maxlength="120" placeholder="Because…"></label>
     <div class="row2"><label class="fld"><span>By (optional)</span><input type="date" name="due" value="${g.due || ''}"></label>
       <label class="fld"><span>Kind</span><select name="cat">${CAT_IDS.map((id) => `<option value="${id}" ${g.cat === id ? 'selected' : ''}>${CATS[id].emoji} ${CATS[id].name}</option>`).join('')}</select></label></div>
@@ -133,7 +133,7 @@ function goal(c, m) {
 /* ── one block's menu ── */
 function blockMenu(c, m) {
   const r = c.kid.routines.find((x) => x.id === m.id);
-  return `${head(`${cat(r.cat).emoji} ${esc(r.title)}`, 'How did it go?')}
+  return `${head(`${iconOf(r)} ${esc(r.title)}`, 'How did it go?')}
   <div class="choice">
     <button class="ch ch-done" data-act="mark" data-id="${r.id}" data-s="done"><span>✅</span>Done</button>
     <button class="ch ch-part" data-act="mark" data-id="${r.id}" data-s="part"><span>🌗</span>Partly</button>
@@ -151,7 +151,7 @@ function wrap(c, m) {
   const moods = ['😄', '🙂', '😐', '😕', '😴'];
   return `${head('🌙 Wrap up today', 'Tap how each one went. That’s it.')}
   <ul class="wrap-list">${bl.map((b) => { const s = status(h, kid, b, t, t, now).s; return `<li style="--c:${cat(b.r.cat).color}">
-    <span class="wl-t">${cat(b.r.cat).emoji} ${esc(b.r.title)}<small>${clock(b.start)}</small></span>
+    <span class="wl-t">${iconOf(b.r)} ${esc(b.r.title)}<small>${clock(b.start)}</small></span>
     <span class="wl-b">${[['done', '✅'], ['part', '🌗'], ['skip', '⏭️']].map(([v, e]) => `<button class="${s === v ? 'on' : ''}" data-act="wrapMark" data-id="${b.r.id}" data-s="${v}" aria-label="${v}">${e}</button>`).join('')}</span></li>`; }).join('') || '<li class="muted">Nothing to check in.</li>'}</ul>
   <div class="mood-q"><b>How was today?</b><div class="moods">${moods.map((e) => `<button class="${kid.mood[t] === e ? 'on' : ''}" data-act="mood" data-v="${e}">${e}</button>`).join('')}</div></div>
   <footer class="sh-f"><span class="muted small">Plans change. Skipping isn't failing — it's information.</span><button class="btn" data-act="wrapDone">All done 🍯</button></footer>`;

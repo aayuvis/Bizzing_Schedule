@@ -50,7 +50,7 @@ export function addRoutine(kid, r, today = ymd()) {
     id: uid(), title: r.title, cat: r.cat || 'play', start: r.start, dur: Math.max(5, r.dur || 30),
     days: r.date ? [] : (r.days && r.days.length ? [...r.days].sort() : [0, 1, 2, 3, 4, 5, 6]),
     date: r.date || null, from: r.from || today, until: null,
-    anchor: !!r.anchor, auto: !!r.auto, app: r.app || null, by: r.by || 'kid',
+    anchor: !!r.anchor, auto: !!r.auto, app: r.app || null, by: r.by || 'kid', icon: r.icon || null,
   };
   kid.routines.push(x);
   return x;
@@ -228,7 +228,7 @@ export function removeExtra(kid, date, id) {
 
 export function addTask(kid, t, today = ymd()) {
   const x = { id: uid(), title: t.title, cat: t.cat || 'study', due: t.due || null, est: t.est || null,
-              status: 'todo', goalId: t.goalId || null, pri: t.pri || 'normal', sub: t.sub || [], created: today, doneAt: null, by: t.by || 'kid' };
+              status: 'todo', goalId: t.goalId || null, pri: t.pri || 'normal', sub: t.sub || [], created: today, doneAt: null, by: t.by || 'kid', icon: t.icon || null };
   kid.tasks.push(x);
   return x;
 }

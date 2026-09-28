@@ -84,12 +84,19 @@ async function run(label, vp, isMobile) {
   await page.click('.card-h button:has-text("Add")');
   await page.waitForSelector('form[data-form=routine]');
   await page.fill('input[name=title]', 'Violin');
+  ok(`${label}: typing a title picks its icon`, (await page.textContent('.iconf-b')).trim() === '🎻');
+  await page.click('.iconf-b');
+  await page.fill('.icon-q', 'rocket');
+  ok(`${label}: the icon search narrows to matches`, (await page.locator('.icon-grid button:visible').count()) === 1);
+  await page.click('.icon-grid button[data-v="🚀"]');
+  await page.fill('input[name=title]', 'Violin');
+  ok(`${label}: a hand-picked icon is not overwritten by typing`, (await page.textContent('.iconf-b')).trim() === '🚀');
   await page.click('.catpick label:has-text("Music & art")');
   await page.click('.days label:has-text("Sa")');
   await page.click('.days label:has-text("We")');   // untick the pre-selected day
   await page.click('form[data-form=routine] button:has-text("Add to plan")');
   const violin = await page.evaluate(() => window.__bzs.M.activeKid(window.__bzs.S.h).routines.find((r) => r.title === 'Violin'));
-  ok(`${label}: the plan editor's chips and day toggles work`, violin && violin.cat === 'create' && violin.days.join() === '5', JSON.stringify(violin && { cat: violin.cat, days: violin.days }));
+  ok(`${label}: the plan editor's chips, day toggles and icon all save`, violin && violin.cat === 'create' && violin.days.join() === '5' && violin.icon === '🚀', JSON.stringify(violin && { cat: violin.cat, days: violin.days, icon: violin.icon }));
 
   // week
   await page.evaluate(() => { location.hash = 'week'; });
@@ -159,6 +166,35 @@ async function run(label, vp, isMobile) {
   await page.fill('textarea[name=text]', 'Great focus today!');
   await page.click('button:has-text("Send 🎁")');
   ok(`${label}: kudos arrive on the child's record`, await page.evaluate(() => window.__bzs.S.h.kids[0].kudos[0].text === 'Great focus today!'));
+
+  // themes: three pills, one tap, remembered on this device
+  await page.goto(`${URL0}?now=${NOW}#today`);
+  await page.waitForSelector('.themes');
+  ok(`${label}: three theme pills`, (await page.locator('.top .themes button').count()) === 3);
+  await page.click('.top .themes button[data-v="night"]');
+  ok(`${label}: Night applies at once`, (await page.getAttribute('html', 'data-theme')) === 'night');
+  await page.reload(); await page.waitForSelector('.timeline'); await page.waitForTimeout(500);   // let the background fade finish
+  ok(`${label}: and is remembered`, (await page.getAttribute('html', 'data-theme')) === 'night');
+  const contrast = await page.evaluate(() => { const el = document.querySelector('.blk-body'); const c = getComputedStyle(el); return [c.backgroundColor, getComputedStyle(el.querySelector('.blk-t')).color]; });
+  ok(`${label}: at night a block is dark with light text`, /rgb\((\d+), (\d+), (\d+)\)/.test(contrast[0]) && contrast[0].match(/\d+/g).slice(0, 3).reduce((a, b) => a + +b, 0) < 300 && contrast[1].match(/\d+/g).slice(0, 3).reduce((a, b) => a + +b, 0) > 500, contrast.join(' / '));
+  /* every piece of text on Today, against the colour actually behind it (WCAG AA for large-ish UI text: 3:1; body text 4.5:1) */
+  const poor = await page.evaluate(() => {
+    const lum = (c) => { const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const st = getComputedStyle(e); if (st.backgroundImage !== 'none') return null;   /* a painting or gradient: judged by eye */ const a = st.backgroundColor.match(/[\d.]+/g); if (a && (a.length < 4 || +a[3] > 0.5)) return st.backgroundColor; } return 'rgb(255,255,255)'; };
+    const out = [];
+    for (const el of document.querySelectorAll('.view *')) {
+      if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+      const r = el.getBoundingClientRect(); if (!r.width || r.bottom < 0 || r.top > innerHeight) continue;
+      const bg = bgOf(el); if (!bg) continue;                       // text over a painting: judged by eye
+      const a = lum(getComputedStyle(el).color), b = lum(bg), ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      if (ratio < 3) out.push(`${el.tagName.toLowerCase()}.${el.getAttribute('class') || ''} “${el.textContent.trim().slice(0, 24)}”: ${ratio.toFixed(1)}`);
+    }
+    return out.slice(0, 5);
+  });
+  ok(`${label}: every word on Today is readable at night`, !poor.length, poor.join(' | '));
+  await noOverflow('today at night'); await shot('9-night');
+  await page.click('.top .themes button[data-v="ocean"]'); await shot('9-ocean');
+  await page.click('.top .themes button[data-v="honey"]');
 
   // focus sprint opens and stops
   await page.goto(`${URL0}?now=${NOW}#today`);

@@ -5,6 +5,7 @@ import { niceDate, dur } from '../time.js';
 import { cat, CATS, CAT_IDS } from '../cats.js';
 import { tasksFor } from '../model.js';
 import { esc, icon, plural } from '../ui.js';
+import { iconOf } from '../icons.js';
 
 export const COLS = [['todo', 'To do', '📝'], ['doing', 'Doing', '⚡'], ['done', 'Done', '🍯']];
 
@@ -50,7 +51,7 @@ function card(x, goals, t) {
   const late = x.due && x.due < t && x.status !== 'done';
   return `<article class="kcard ${x.status === 'done' ? 'is-done' : ''}" tabindex="0" data-card="${x.id}" style="--c:${k.color};--s:${k.soft}" aria-label="${esc(x.title)}">
     <div class="kc-top"><span class="loz" style="--c:${k.color};--s:${k.soft}">${k.emoji} ${k.name}</span>${x.pri === 'high' ? '<span class="pri" title="Important">!</span>' : ''}</div>
-    <h3>${esc(x.title)}</h3>
+    <h3><span class="kc-ic">${iconOf(x)}</span>${esc(x.title)}</h3>
     ${x.sub.length ? `<div class="kc-sub"><div class="bar thin"><i style="width:${Math.round(subDone / x.sub.length * 100)}%"></i></div><small>${subDone}/${x.sub.length}</small></div>` : ''}
     <div class="kc-meta">
       ${x.due ? `<span class="meta ${late ? 'late' : ''}">${icon('clock')} ${niceDate(x.due, t)}</span>` : ''}

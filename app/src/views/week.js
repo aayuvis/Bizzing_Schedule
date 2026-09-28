@@ -5,6 +5,7 @@ import { weekDays, DAY_SHORT, shortDate, clock, dur, weekStart, dow } from '../t
 import { cat } from '../cats.js';
 import { blocksFor, status, dayScore, breathingRoom, clashes } from '../model.js';
 import { esc, icon } from '../ui.js';
+import { iconOf } from '../icons.js';
 
 const FROM = 7 * 60, TO = 22 * 60, PX = 0.9;   // px per minute
 
@@ -46,7 +47,7 @@ export function week(c) {
             const st = status(h, kid, b, d, t, now).s, x = cat(b.r.cat);
             return `<button class="wb st-${st} ${cl.has(b.r.id) ? 'clash' : ''} ${bottom - top < 30 ? 'tiny' : ''}" style="top:${top}px;height:${Math.max(18, bottom - top - 2)}px;--c:${x.color};--s:${x.soft}"
               data-act="editRoutine" data-id="${b.r.id}" data-date="${d}" title="${esc(b.r.title)} · ${clock(b.start)}–${clock(b.start + b.dur)}${cl.has(b.r.id) ? ' · clashes with another block' : ''}">
-              <b>${x.emoji} ${esc(b.r.title)}</b><small>${clock(b.start)} · ${dur(b.dur)}</small>${b.r.anchor ? icon('lock', 'wb-lock') : ''}</button>`;
+              <b>${iconOf(b.r)} ${esc(b.r.title)}</b><small>${clock(b.start)} · ${dur(b.dur)}</small>${b.r.anchor ? icon('lock', 'wb-lock') : ''}</button>`;
           }).join('')}
           ${d === t && now > FROM && now < TO ? `<div class="wk-now" style="top:${nowTop}px"></div>` : ''}
         </div>
