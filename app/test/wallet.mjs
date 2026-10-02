@@ -5,6 +5,7 @@ let fail = 0; const ok = (n, c, x = '') => { if (!c) { fail++; console.log('✗'
 const T = Date.UTC(2026, 9, 2, 12);
 ok('answer pays 1', W.earn('maths', 'Anaya', 'answer', T) === 1);
 ok('unknown events pay nothing (no time, streak, dice)', ['time', 'streak', 'login', 'dice', 'luck'].every((e) => W.earn('maths', 'Anaya', e, T) === 0));
+ok('Bizzing English is a family app', W.earn('english', 'Zoya', 'answer', T) === 1);
 ok('unknown app pays nothing', W.earn('hive', 'Anaya', 'answer', T) === 0);
 ok('names are case-insensitive', W.earn('bee', 'anaya', 'stop', T) === 5 && W.balance('ANAYA') === 6);
 for (let i = 0; i < 30; i++) W.earn('geography', 'Anaya', 'mastery', T);
@@ -23,4 +24,4 @@ ok('refund of something never bought pays nothing', W.refund('bee', 'Kabir', 'av
 ok('a migration does not use up the day\'s lid', W.migrateFrom('india', 'Mira', 500, T) === 500 && W.earn('india', 'Mira', 'answer', T) === 1);
 ok('ledger is append-only and explains every coin', W.ledger('Anaya').reduce((a, x) => a + x.n, 0) === W.balance('Anaya'));
 if (fail) { console.log(`wallet: ${fail} FAILED`); process.exit(1); }
-console.log('wallet: all 16 passed');
+console.log('wallet: all 17 passed');

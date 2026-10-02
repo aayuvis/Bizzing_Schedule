@@ -19,7 +19,7 @@
    The family server replaces this key later; the shape stays. */
 
 const KEY = 'bizzing.wallet';
-const APPS = /^(bee|maths|geography|india|finance)$/;
+const APPS = /^(bee|maths|geography|india|finance|english)$/;
 export const EARN = { answer: 1, stop: 5, contest: 10, mastery: 20 };
 export const DAILY_CAP = 100;
 const MAX = 2000;

@@ -127,6 +127,60 @@ export async function checkShell(page, { phone = false, bee = false } = {}) {
   return fails;
 }
 
+/* A sub-page against Bee's head (SPEC-ENGLISH §8a.6). Call on any screen built with pageHead().
+   Desktop: the head starts 20 below the header; a tab root's title is inset 20 (x 106 at 1280);
+   a deeper page's back pill is 34 tall at the content edge and NAMES its parent, and its title is
+   centred on the row; chips are 37 tall, 8 apart; the active sub-nav chip is filled; the sub-nav
+   is 13 below the head and never wraps. Phone: the deeper title drops to its own row 12 below
+   the pill, inset 15; nothing is wider than the phone. */
+export async function checkPageHead(page, { phone = false } = {}) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  const m = await page.evaluate(() => {
+    const R = (e) => { if (!e) return null; const r = e.getBoundingClientRect(); return r.width ? [r.x, r.y, r.width, r.height].map(Math.round) : null; };
+    const q = (s) => document.querySelector(s);
+    const head = q('[data-bz=pagehead]');
+    const nav = q('[data-bz=subnav]');
+    const chips = [...document.querySelectorAll('[data-bz=pagehead] .bz-chip')].map((e) => ({ r: R(e), cur: e.getAttribute('aria-current') === 'page',
+      bg: getComputedStyle(e).backgroundColor }));
+    const navChips = nav ? [...nav.querySelectorAll('.bz-chip')].map(R) : [];
+    return { header: R(q('[data-bz=header]')), content: R(q('[data-bz=content]')), head: R(head), kind: head?.dataset.bzKind,
+      title: R(q('[data-bz=ph-title]')), group: R(q('[data-bz=ph-title]')?.closest('.bz-ph-t')), back: R(q('[data-bz=back]')), backText: q('[data-bz=back]')?.textContent.trim() || '',
+      row: R(q('[data-bz=pagehead] .bz-ph-row')), nav: R(nav), navChips, chips,
+      accent: getComputedStyle(document.documentElement).getPropertyValue('--bz-accent').trim(), scrollW: document.documentElement.scrollWidth };
+  });
+  const fails = [];
+  if (!m.head) return ['no pageHead() on this screen'];
+  const hb = m.header[1] + m.header[3];
+  const cx = phone ? 15 : m.content[0] + 35;            // the content edge (86 at 1280)
+  if (!near(m.head[1], hb + (phone ? 19 : 20), 3)) fails.push(`page head starts ${m.head[1] - hb}px below the header, Bee's ${phone ? 19 : 20}px`);
+  if (m.kind === 'root') {
+    if (!m.title || !near(m.title[0], cx + (phone ? 0 : 20), 3)) fails.push(`tab-root title at x ${m.title?.[0]}, Bee's ${cx + (phone ? 0 : 20)}`);
+  } else {
+    if (!m.back) fails.push('a deeper page has no back pill');
+    else {
+      if (!near(m.back[3], 34, 2)) fails.push(`back pill is ${m.back[3]}px tall, Bee's 34px`);
+      if (!near(m.back[0], cx, 3)) fails.push(`back pill at x ${m.back[0]}, Bee's ${cx}`);
+      if (!m.backText || /^back$/i.test(m.backText)) fails.push('the back pill must name its parent, never just "Back"');
+    }
+    if (m.title && m.row) {
+      if (!phone && !near(m.group[0] + m.group[2] / 2, m.row[0] + m.row[2] / 2, 6)) fails.push('a deeper page\'s title (with its subtitle) is not centred on its row');
+      if (phone && m.back && (!near(m.title[1], m.back[1] + m.back[3] + 12, 4) || !near(m.title[0], 30, 4))) fails.push(`phone title at ${m.title[0]},${m.title[1]}: Bee's sits 12 under the pill at x 30`);
+    }
+  }
+  for (const c of m.chips) if (c.r && !near(c.r[3], 37, 2)) { fails.push(`a chip is ${c.r[3]}px tall, Bee's 37px`); break; }
+  if (m.nav) {
+    if (m.navChips.length < 2 || m.navChips.length > 6) fails.push(`${m.navChips.length} sub-nav chips (2–6)`);
+    if (new Set(m.navChips.map((r) => r[1])).size > 1) fails.push('the sub-nav wraps (it scrolls sideways, never wraps)');
+    for (let i = 1; i < m.navChips.length; i++) if (!near(m.navChips[i][0] - (m.navChips[i - 1][0] + m.navChips[i - 1][2]), 8, 1)) { fails.push('sub-nav chips are not 8px apart'); break; }
+    const navCur = m.chips.filter((c) => c.cur);
+    if (navCur.length !== 1) fails.push(`${navCur.length} active sub-nav chips (exactly 1)`);
+    else if (/rgba\(0, 0, 0, 0\)|transparent/.test(navCur[0].bg) || navCur[0].bg === m.chips.find((c) => !c.cur)?.bg) fails.push('the active sub-nav chip is not filled');
+    if (m.row && !near(m.nav[1] - (m.row[1] + m.row[3]), 13, 3) && !(phone && m.kind === 'deep')) fails.push(`sub-nav is ${m.nav[1] - (m.row[1] + m.row[3])}px below the head, Bee's 13px`);
+  }
+  if (phone && m.scrollW > 390) fails.push(`page is ${m.scrollW}px wide on a 390px phone`);
+  return fails;
+}
+
 /* CLI */
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { chromium } = await import('playwright');

@@ -56,6 +56,20 @@ const P = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   path: '<path d="M4 19c3 0 3-4 6-4s3 4 6 4M8 9c3 0 3-4 6-4s3 4 6 4"/><circle cx="4" cy="19" r="1.4"/><circle cx="20" cy="9" r="1.4"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/>',
+  /* added for Bizzing English (SPEC-ENGLISH §8a.7), same drawing rules */
+  lectern: '<path d="M5 8.5h14l-2 3.5H7Z"/><path d="M12 12v8M8.5 20.5h7"/><path d="M9 5.5h6"/>',
+  quill: '<path d="M20 4c-6 .5-10.5 4.5-12 11l-1.5 5"/><path d="M8 15c3.5 0 6.5-1.5 8.5-4.5M10.5 10.5c2.5 0 4.5-.8 6-2.3"/>',
+  scroll: '<path d="M7 4h11a2 2 0 0 1 2 2v1h-4"/><path d="M16 7v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1h10"/><path d="M7 4a2 2 0 0 0-2 2v11M9 9h4M9 12.5h4"/>',
+  mask: '<path d="M4 5.5c5 1.5 11 1.5 16 0v6c0 4.5-3.6 8-8 8s-8-3.5-8-8Z"/><path d="M8 10.5h2.5M13.5 10.5H16M9 15c1.8 1.3 4.2 1.3 6 0"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6"/>',
+  bubble: '<path d="M4.5 5.5h15v10h-8l-4.5 4v-4H4.5Z"/><path d="M8.5 10.5h7"/>',
+  key: '<circle cx="8" cy="12" r="4"/><path d="M12 12h9M17.5 12v3.5M20.5 12v2.5"/>',
+  blocks: '<rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/><rect x="8.5" y="4" width="7" height="7" rx="1.5"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  cross: '<path d="M7 7l10 10M17 7 7 17"/>',
+  speaker: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6"/>',
+  undo: '<path d="M9 7 4.5 11.5 9 16"/><path d="M5 11.5h9a5 5 0 0 1 0 10h-2"/>',
+  bank: '<path d="M4 9.5 12 5l8 4.5M5.5 10v8M18.5 10v8M9.5 10v8M14.5 10v8M3.5 19.5h17"/>',
 };
 export const icon = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n] || P.star}</svg>`;
 export const ICONS = Object.keys(P);
@@ -130,6 +144,28 @@ export function home(h) {
   </div>
   ${h.foot ? `<div class="bz-foot">${h.foot}</div>` : ''}
 </div>`;
+}
+
+/* Bee's sub-page head (SPEC-ENGLISH §8a.6, measured from Bee's #/atlas and #/library): every
+   screen but Home opens with one. A tab root has a left title, an optional subtitle and action
+   chips; a deeper page has a back pill that NAMES its parent, a centred title and optional
+   chips. Below it, optionally, ONE sub-nav row of 2–6 route chips (the active one filled in the
+   accent) and a progress strip. Never nest a second sub-nav — a third level is a deeper page.
+     pageHead({ title: 'The Library', sub: 'every book the Atlas teaches', back: { label: 'Home', href: '#/home' },
+       actions: [{ icon: 'clock', label: 'Revise', href: '#/revise' }],
+       nav: [{ label: 'Books', icon: 'book', href: '#/library/books', active: true }, …],
+       strip: { chip: 'Tier 1 of 3', pct: 12, label: 'on your way' } }) */
+export function pageHead(h) {
+  const chip = (c, nav) => `<a class="bz-chip" href="${esc(c.href || '#')}"${c.act ? ` data-act="${esc(c.act)}"` : ''}${nav && c.active ? ' aria-current="page"' : ''}>${c.icon ? icon(c.icon) : ''}<span>${esc(c.label)}</span></a>`;
+  const acts = (h.actions || []).length ? `<div class="bz-ph-acts" data-bz="ph-actions">${h.actions.map((c) => chip(c)).join('')}</div>` : '';
+  const title = `<div class="bz-ph-t"><h1 data-bz="ph-title">${esc(h.title)}</h1>${h.sub ? `<span class="bz-ph-sub">${esc(h.sub)}</span>` : ''}</div>`;
+  const row = h.back
+    ? `<div class="bz-ph-row bz-ph-deep"><a class="bz-back" data-bz="back" href="${esc(h.back.href)}">${icon('back')}<span>${esc(h.back.label)}</span></a>${title}${acts || '<span></span>'}</div>`
+    : `<div class="bz-ph-row bz-ph-root">${title}${acts}</div>`;
+  const nav = (h.nav || []).length ? `<nav class="bz-subnav" data-bz="subnav" aria-label="${esc(h.title)} sections">${h.nav.slice(0, 6).map((c) => chip(c, true)).join('')}</nav>` : '';
+  const s = h.strip;
+  const strip = s ? `<div class="bz-strip" data-bz="strip">${s.chip ? `<span class="bz-tier">${esc(s.chip)}</span>` : ''}<i><b style="width:${Math.max(0, Math.min(100, s.pct || 0))}%"></b></i>${s.label ? `<small>${esc(s.label)}</small>` : ''}</div>` : '';
+  return `<div class="bz-ph" data-bz="pagehead" data-bz-kind="${h.back ? 'deep' : 'root'}">${row}${nav}${strip}</div>`;
 }
 
 /* Wire the chrome once. Delegated, so it survives every re-render. */
