@@ -27,7 +27,7 @@ Paste this into the Bizzing Maths chat, or point that chat at this file. It repl
 
 - **Mascot (§2):** the owner picks from Octo / Nova / Tally (concepts in `docs/family/mascots/`). Then generate the six poses and put the mascot on the icon, logo, home greeting, worlds, finish screens, and empty and error states. Aryabhata stays as the ceremony elder.
 - **App icon:** the mascot on cobalt with the graph grid. Replace `icon.svg` and add the 192/512/maskable/apple-touch PNGs.
-- **Avatars (§8):** 30 today, no tiers. Regroup the 30 into packs, add **Bee's Turbo pack** (Number Rush racers), and generate 58 more for 96. Pair two packs to each of the six worlds and give every Legendary a Maths milestone ("Finish the Deep Mine"). The six frames become Extras in the Shop.
+- **Avatars (§8):** 30 today, no tiers. Regroup the 30 into packs, add **Bee's Turbo and Origami packs**, and generate 50 more for 96. Pair two packs to each of the six worlds and give every Legendary a Maths milestone ("Finish the Deep Mine"). The six frames become Extras in the Shop.
 - **Worlds (§7):** turn the six themes (Graph Paper, Chalkboard, Blueprint, Orbit, Rangoli, Arcade) into six painted, dynamic worlds with painted night variants. The bakery, observatory and mine plates are the art direction. Today the plates glare on navy.
 - **Tabs:** Arcade becomes **Play**. Add ☰ (§3) and move Me, Shop, Medals, Settings and Grown-ups into it.
 - **Icons (§9):** up to 45 emoji per screen today (Atlas 37, Grown-ups 45). Replace them all with the SVG set.
@@ -155,7 +155,7 @@ Entitlements (T1), pricing in the product (T2), free-vs-paid copy (T4) and marke
 
 - [ ] Every Fix-first item is shipped and tested.
 - [ ] Every key element in §3 is at **≥ 4**, each with its Done-when check in the test suite.
-- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, nothing sacred or real.
+- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, real people with an about line.
 - [ ] At least six worlds meet §7 (painted, three ambient layers, a designed night, music), screenshotted in light and dark at 390 px and 1280 px.
 - [ ] The mascot and app icon ship per §2 (the owner's pick).
 - [ ] Top bar, ☰, tabs and Settings match §3–§5.

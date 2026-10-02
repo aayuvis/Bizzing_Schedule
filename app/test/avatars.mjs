@@ -14,8 +14,8 @@ const broke = (f) => { const c = structuredClone(cat); f(c); return A.validate(c
 ok('refuses 95 avatars', broke((c) => c.pop()));
 ok('refuses a pack with two legendaries', broke((c) => { c[2].tier = 'legendary'; c[2].milestone = { id: 'x', label: 'x' }; }));
 ok('refuses a legendary with no milestone', broke((c) => { delete c[7].milestone; }));
-ok('refuses a sacred figure', broke((c) => { c[3].sacred = true; }));
-ok('refuses a real person', broke((c) => { c[3].real = true; }));
+ok('a real person needs a one-line about', broke((c) => { c[3].real = true; }) && !broke((c) => { c[3].real = true; c[3].about = 'Physicist'; }));
+ok('a sacred figure is allowed, but never in a villain pack', !broke((c) => { c[3].sacred = true; }) && A.sacredSafe([{ id: 'x', sacred: true, pack: 12 }], [12]).length === 1 && A.sacredSafe([{ id: 'x', sacred: true, pack: 3 }], [12]).length === 0);
 ok('refuses an off-list price', broke((c) => { c[3].price = 99; }));
 ok('refuses a duplicate id', broke((c) => { c[3].id = c[4].id; }));
 ok('refuses a thirteenth pack', broke((c) => { c[3].pack = 13; }));

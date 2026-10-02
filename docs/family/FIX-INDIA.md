@@ -22,13 +22,13 @@ Paste this into the Bizzing India chat, or point that chat at this file. It repl
 - **Hard-coded pass codes** `PARIVAAR` / `NANI2026` in client code (R7). Remove them, and gate on the server pass when it exists.
 - **Rangoli Rush says "8 of 6 dots placed".** Pallanguzhi and Gutte tiles are star placeholders. Festival Frenzy is missing from the Mela grid.
 - **Set script charts in their own faces.** The Urdu chart uses Naskh, not Nastaliq, and other charts fall back to Hanken Grotesk. The Indic type rule is binding.
-- **Sacred figures and real people leave the avatar collection** (§8.1). Real people stay as learning cards, met by reading their story, never priced. Refund coins paid for them with `refund()`.
+- **Real-people cards are priced at 40 coins, outside the tier table.** Move them to their tier prices (§8). Sacred figures and real people stay in the collection (owner decision), but never in a villain role.
 - **Repeated Back from Home lands on #/neeti.** Back must stay on Home.
 
 ## 2. Harmonise with the family (standard v2)
 
 - **Mascot and icon (§2):** keep the peacock and the companion. Put the peacock on the logo and on the empty and error states.
-- **Avatars (§8):** 80 are offered today, with tiers of 10/18/26/24 and real-people cards at 40 coins. Rebuild to 12 packs × 8 with the 2/3/2/1 shape from the eligible faces, then your own archive of 62, then generate the rest. No sacred figure and no real person may be an avatar. Pair packs to worlds and adopt `bizzing-avatars.js`.
+- **Avatars (§8):** 80 are offered today, with tiers of 10/18/26/24 and real-people cards at 40 coins. Rebuild to 12 packs × 8 with the 2/3/2/1 shape: keep all 80 (sacred and real included, by owner decision) and fill to 96 from your archive of 62. A real person gets a one-line `about`, and no sacred figure appears in a villain role. Pair packs to worlds and adopt `bizzing-avatars.js`.
 - **Worlds (§7):** unchanged; India is the night model. Worlds 1–2 are free and the rest open with the plan or for 240 coins (today a world costs 240 — keep that). 10 of the 15 worlds are not offered; offer them or retire them.
 - **Tabs (§4):** cut the 7 desktop tabs to 5 — Home · India · Paathshala · Bhasha · Play. Nani-Nana and Moral Science become Paathshala courses or ☰ entries. Replace phone "More" with ☰. Use one name for Play (not Khel or Mela on the tab).
 - **Music (§11):** none today. Add a loop per world (the folk-instrument palette suits it) with the volume slider. Keep the recorded narration as it is.
@@ -182,7 +182,7 @@ Entitlements (T1), pricing in the product (T2), free-vs-paid copy (T4) and marke
 
 - [ ] Every Fix-first item is shipped and tested.
 - [ ] Every key element in §3 is at **≥ 4**, each with its Done-when check in the test suite.
-- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, nothing sacred or real.
+- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, real people with an about line.
 - [ ] At least six worlds meet §7 (painted, three ambient layers, a designed night, music), screenshotted in light and dark at 390 px and 1280 px.
 - [ ] The mascot and app icon ship per §2 (the owner's pick).
 - [ ] Top bar, ☰, tabs and Settings match §3–§5.

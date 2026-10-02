@@ -27,7 +27,7 @@ Paste this into the Bizzing Geography chat, or point that chat at this file. It 
 
 - **Mascot (§2):** the owner picks from Shelly / Kip / Roam. Compass Owl today guides onboarding only. The mascot goes on the icon, logo, home, worlds, finish screens, and empty and error states.
 - **App icon:** the mascot on teal with map contours.
-- **Avatars (§8):** 40 today, all free by rule. That rule is now overridden. Keep the 5 packs, add **Bee's Big Beasts pack** (with Vasuki replaced), and generate 6 packs, one per theme (ocean, rainforest, desert, polar, mountains, sky), for 96. Pair two packs to each world. The map pins and frames become Extras.
+- **Avatars (§8):** 40 today, all free by rule. That rule is now overridden. Keep the 5 packs, add **Bee's Big Beasts and Elements packs**, and generate 5 packs, one per theme (ocean, rainforest, desert, polar, mountains), for 96. Pair two packs to each world. The map pins and frames become Extras.
 - **Worlds (§7):** the six living themes are closest to the bar already. Paint their **night variants** (today the plates are not dimmed), add one idle character or vehicle loop each, and add a music loop each.
 - **Tabs:** Home · Atlas · Expeditions · Library (+ Play if the quizzes gather there). Add ☰.
 - **Icons (§9):** the stop glyphs, world pins, tiles and filters are emoji (Atlas 33 per screen). Replace them with the SVG set.
@@ -167,7 +167,7 @@ Entitlements (T1), pricing in the product (T2), free-vs-paid copy (T4) and marke
 
 - [ ] Every Fix-first item is shipped and tested.
 - [ ] Every key element in §3 is at **≥ 4**, each with its Done-when check in the test suite.
-- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, nothing sacred or real.
+- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, real people with an about line.
 - [ ] At least six worlds meet §7 (painted, three ambient layers, a designed night, music), screenshotted in light and dark at 390 px and 1280 px.
 - [ ] The mascot and app icon ship per §2 (the owner's pick).
 - [ ] Top bar, ☰, tabs and Settings match §3–§5.

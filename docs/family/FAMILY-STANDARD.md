@@ -27,7 +27,7 @@ v2 replaces v1. It is built on the deep audit of 152 elements per app, and on th
 | 3 | **Settings look the same in every app** (§5). |
 | 4 | **No load screens for now.** |
 | 5 | **Every app has the same number of avatars: 96, in 12 packs of 8.** Bee's surplus packs are redistributed, and the rest are generated. Rarity, the night glow and the buying engine are identical everywhere (§8). |
-| 6 | **No sacred figures and no real people as collectibles.** |
+| 6 | **Bee keeps its Gods packs, World Changers and Spelling Champions** (owner, 2 Oct, overriding the earlier withdrawal). Sacred figures and real people may be collectibles. They are marked in the catalogue, a real person carries a one-line *about*, and a sacred figure is never in a villain pack or drawn as an antagonist. |
 | 7 | **Themes are low priority.** Do not fret over them. |
 | 8 | **Every app has at least six worlds** that are very dynamic and excellent in the dark. Bee's and India's worlds are the model, and they stay as they are. The other three apps enhance or create theirs (§7). |
 | 9 | **Maths, Geography and Finance each get a clear, likeable mascot and app icon.** Bee and India keep theirs (§2). |
@@ -47,7 +47,7 @@ One wallet per child, shared by every app. Coins are earned for learning and spe
 | **What coins buy** | Avatars, worlds 3–6 (§7, §8) and cosmetics: outfits, frames, board skins, stickers and bonus game *modes*. Every price is fixed and printed. **Never lessons, stops or a core game.** |
 | **What coins never are** | Random, a pack drawn blind, a sale, doubling, betting or trading. Never bought with real money. The paid plan opens worlds; it never sells coins. |
 | **The shop** | Every app has a **Shop** that opens from ☰ and from the coin chip. It uses the same layout in every app: tabs **Avatars · Worlds · Extras**, then the wallet history (§1.1). |
-| **Refunds** | When something is withdrawn (for example a sacred figure), `refund(app, who, item)` gives back exactly what the ledger shows was paid, once. |
+| **Refunds** | When something is withdrawn from a shop, `refund(app, who, item)` gives back exactly what the ledger shows was paid, once. |
 | **Finance teaches it** | Bizzing Finance shows the same wallet as the child's income. Finance's own town money stays its curriculum. **Owner decision:** Finance still adopts the family avatar engine priced in family coins. This overrides docs/11's refusal of rarity, so Finance's CLAUDE.md must be updated to say so. |
 | **The Hive pays nothing** | The Hive shows medals and the comb, never coins. |
 
@@ -204,7 +204,7 @@ A **world** is a complete dress for the app, in Bee's and India's sense (Bee: Ga
 
 | App | Worlds now | To do |
 |---|---|---|
-| Bee | 8 world themes. God's Abode is withdrawn (§8), leaving 7. | No change beyond the withdrawal. |
+| Bee | 8 world themes | None. Bee is the model. |
 | India | 15 world themes, each with a designed night | None. India is the night model. |
 | Maths | 6 themes (Graph Paper, Chalkboard, Blueprint, Orbit, Rangoli, Arcade): flat, plates not dimmed | Repaint as 6 dynamic worlds with night variants. The painted place plates (the bakery, the observatory…) can feed them. |
 | Geography | 6 living themes (Old Atlas, Ocean Deep, Rainforest, Desert Dunes, Polar Aurora, Satellite), 44–101 props each | Paint the night variants, and add the idle loop and music. Closest to the bar already. |
@@ -231,7 +231,7 @@ The engine enforces:
 - the tier prices;
 - a milestone on every Legendary;
 - no randomness, duplicates or trading;
-- refusal of any avatar flagged `sacred` or `real`.
+- an `about` line on every real person, and `sacredSafe()` keeping sacred figures out of villain packs.
 
 **Every card states its path** in plain words: "Free for everyone", "120 coins · 40 more to go", "First: finish the Deep Mine" or "Opens with its world". A card never shows real money and never links to a payment form.
 
@@ -249,15 +249,15 @@ The engine enforces:
 
 ### 8.1 Redistribution — to 96 each
 
-| App | Collectible today | Keep | From a sibling | Withdraw (refund) | Generate | = |
+| App | Collectible today | Keep | From a sibling | Withdraw | Generate | = |
 |---|---|---|---|---|---|---|
-| **Bee** | 142 in 18 packs | 12 packs: Hive, Critter, Cosmos, Vibe, Dojo, Origami, Lab, Elements, Reptilian, Enchanted, Legends, Villains = 96 | — | **European Gods, Indian Gods** (sacred), **World Changers, Spelling Champions** (real people) | 1 (Naga, a sacred serpent, replaced in Reptilian); re-tier every pack to 2/3/2/1 | **96** |
-| **Maths** | 30, no tiers | 30, regrouped by family | **Bee's Turbo pack** (8 racers → Number Rush) | — | 58 (7¼ packs) | **96** |
-| **Geography** | 40, no tiers | 40 (5 packs) | **Bee's Big Beasts pack** (8 prehistoric and ocean giants; Vasuki, a sacred serpent, replaced) | — | 48 (6 packs, one per theme: ocean, rainforest, desert, polar, mountains, sky) | **96** |
-| **India** | 80 offered (+62 archived); tiers 10/18/26/24 | The non-sacred, non-real faces among the 80 | Its own archive of 62, where eligible | **Sacred figures and the real-people cards** leave the collection. Real people stay as *learning* cards, met by reading their story, never priced. Coins paid for them are refunded. | The rest, to 96 | **96** |
-| **Finance** | 21, no tiers (refused in docs/11, now overridden) | Faces not shared with a sibling | — | — | ~75 to 96, two packs per world (townsfolk, market animals, harbour, clockwork, builders, festival) | **96** |
+| **Bee** | 142 in 18 packs | 12 packs: Hive, Cosmos, Dojo, Lab, Reptilian, Enchanted, Legends, Villains, **European Gods, Indian Gods, World Changers, Spelling Champions** (owner keeps these) | — | — | 2 (Spelling Champions has 6, so it is filled to 8); re-tier every pack to 2/3/2/1 | **96** |
+| **Maths** | 30, no tiers | 30, regrouped by family | **Bee's Turbo** (racers → Number Rush) and **Origami** (folding → shapes) packs | — | 50 | **96** |
+| **Geography** | 40, no tiers | 40 (5 packs) | **Bee's Big Beasts** (prehistoric and ocean giants) and **Elements** (wind, water, fire, earth) packs | — | 40 (one pack per theme: ocean, rainforest, desert, polar, mountains) | **96** |
+| **India** | 80 offered (+62 archived); tiers 10/18/26/24 | All 80, sacred and real included (the same owner decision). Real-people cards move from their 40-coin price to the tier prices. | Its own archive of 62 | — | Fill to 96 from the archive first | **96** |
+| **Finance** | 21, no tiers (refused in docs/11, now overridden) | Faces not shared with a sibling | **Bee's Critter Crew** (townsfolk animals) and **Vibe** packs | — | ~59, two packs per world (market, harbour, clockwork, builders, festival) | **96** |
 
-Bee pairs its 12 packs with its worlds (the `world` field on each avatar; Turbo moving out of Race Zone is Bee's call). Every other app pairs packs 1–12 with worlds 1–6, two each.
+Bee pairs its 12 packs with its 8 worlds through the `world` field on each avatar. Turbo leaving Race Zone is Bee's call. Every other app pairs packs 1–12 with worlds 1–6, two each.
 
 ## 9. Icons and type
 

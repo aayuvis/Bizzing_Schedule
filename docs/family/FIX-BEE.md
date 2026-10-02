@@ -18,7 +18,6 @@ Paste this into the Bizzing Bee chat, or point that chat at this file. It replac
 
 ## 1. Fix first (trust)
 
-- **Withdraw the sacred and the real from the collection.** Remove the Indian Gods and European Gods packs, World Changers (Newton, Gandhi, Buddha…) and Spelling Champions from the store, the packs and the drops. Retire the **God's Abode** world. Refund every coin paid for them with `refund()`. Replace Naga (Reptilian) and Vasuki (Big Beasts) with non-sacred creatures.
 - **Settings must ask for the PIN.** Today it opens without one, though its own copy says it asks. "Manage plan" and the Advanced Pack sales page must never appear on a child's screen (T3).
 - **Remove the developer "BUG?" side tab and the beta banner** from the child's screens (Q7).
 - **Stop promising unpaid coins.** Magic Squares advertises line bonuses it never pays. Either pay them through `earn()` at a standard event, or delete the copy.
@@ -29,8 +28,8 @@ Paste this into the Bizzing Bee chat, or point that chat at this file. It replac
 
 ## 2. Harmonise with the family (standard v2)
 
-- **Avatars (§8):** keep 12 packs (Hive, Critter, Cosmos, Vibe, Dojo, Origami, Lab, Elements, Reptilian, Enchanted, Legends, Villains). Re-tier each to 2 Common · 3 Rare · 2 Epic · 1 Legendary, and give every Legendary a named milestone. Rename "Starter" to "Common". **Send the Turbo pack to Maths and the Big Beasts pack to Geography** (art and names; remove them from Bee once they ship there). Adopt `bizzing-avatars.js` and `.css`; `validate()` goes in the tests.
-- **Worlds (§7):** unchanged, as the model, except that God's Abode is withdrawn. Pair the 12 packs to the 7 remaining worlds with the `world` field. Worlds 1–2 are free; worlds 3+ open with the plan or for 240 coins.
+- **Avatars (§8):** keep 12 packs: Hive, Cosmos, Dojo, Lab, Reptilian, Enchanted, Legends, Villains, European Gods, Indian Gods, World Changers and Spelling Champions (fill it from 6 to 8). Re-tier each pack to 2 Common · 3 Rare · 2 Epic · 1 Legendary, and give every Legendary a named milestone. Rename "Starter" to "Common". Real people get a one-line `about`. **Hand Turbo and Origami to Maths, Big Beasts and Elements to Geography, and Critter Crew and Vibe to Finance** (art and names), then remove them from Bee once they ship there. Adopt `bizzing-avatars.js` and `.css`; `validate()` and `sacredSafe()` go in the tests.
+- **Worlds (§7):** unchanged, as the model. Pair the 12 packs to the 8 worlds with the `world` field. Worlds 1–2 are free; worlds 3+ open with the plan or for 240 coins.
 - **Shop:** a real Shop screen (Avatars · Worlds · Extras) from ☰ and the coin chip. Outfits and frames are the first extras.
 - **Wallet history** behind the coin chip (§1.1).
 - **Music (§11):** extend the Atlas loop to Home, every world and the games, with one volume slider in Settings. No new narration is needed; keep the clips.
@@ -79,7 +78,7 @@ Paste this into the Bizzing Bee chat, or point that chat at this file. It replac
 | P6 | Screen-reader labels & reduced motion | **3** | aria-labels on top bar (e.g. 'Ahana — switch child'), role=progressbar, Reduce motion toggle; canvas games largely unlabelled. | Label game regions and announce results via aria-live. | aria-labels on icon buttons; reduced motion respected. | M |
 | R2 | First-load weight | **2** | Repo first-load test: 1,730 KB first screen, 1,238 KB gzipped JS vs family budget 1,536 KB / 400 KB. Raw source tree: 5.97 MB, 4.95 MB JS. | Split app3.js (1.3 MB source) and shrink the boot word shard. | First screen ≤ 1.5 MB on a phone; initial JS ≤ 400 KB gzipped. | L |
 | S3 | Privacy page accurate | **3** | privacy.html accurate about optional backup; Parent zone says 'no accounts… Nothing is sent anywhere'; landing FAQ says progress is 'backed up to your account'. | Make the three statements say the same thing. | Privacy page true, updated first when anything changes. | S |
-| S4 | Sensitive content handled | **1** | Indian Gods pack (Shiva, Krishna, Ganesha, Durga, Saraswati…) as Epic/Legendary collectibles with OVR scores; 'God's Abode' world; 'Islamic: supporting Islamism' as word… | Remove deity avatars and the gods world; review religion/nationality definitions with a named reviewer. | No sacred figure or real person as a collectible; sensitive content reviewed. | M |
+| S4 | Sensitive content handled | **1** | Indian Gods pack (Shiva, Krishna, Ganesha, Durga, Saraswati…) as Epic/Legendary collectibles with OVR scores; 'God's Abode' world; 'Islamic: supporting Islamism' as word… | Remove deity avatars and the gods world; review religion/nationality definitions with a named reviewer. | Sacred figures never as villains; real people with an about line; sensitive content reviewed. | M |
 | T3 | Paywall never on the child's screen | **2** | Child screens carry 'Comes with the plan — ask a grown-up' on 122 avatars, plan-locked book shelf and a full Advanced Mode sales page reachable from the Atlas. | Show locked plan items as quiet silhouettes with no 'ask a grown-up' nudge. | No price, plan button or sales page on any child screen (check). | M |
 | T9 | Shareability | **2** | Daily Buzz share grid (navigator.share/clipboard), Print my cards, printable weekly report. No certificate or share card. | Printable stage/region certificates. | Certificates per §13, shared from the grown-ups area. | M |
 
@@ -181,7 +180,7 @@ Entitlements (T1), pricing in the product (T2), free-vs-paid copy (T4) and marke
 
 - [ ] Every Fix-first item is shipped and tested.
 - [ ] Every key element in §3 is at **≥ 4**, each with its Done-when check in the test suite.
-- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, nothing sacred or real.
+- [ ] `validate(avatars)` returns `[]`: 96 avatars in 12 × 8, tiers 2/3/2/1, every Legendary has a milestone, real people with an about line.
 - [ ] At least six worlds meet §7 (painted, three ambient layers, a designed night, music), screenshotted in light and dark at 390 px and 1280 px.
 - [ ] The mascot and app icon ship per §2 (the owner's pick).
 - [ ] Top bar, ☰, tabs and Settings match §3–§5.

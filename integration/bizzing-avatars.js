@@ -28,7 +28,9 @@
      never shows a price in real money or a button to a payment form.
    • A legendary needs its named learning milestone first, then the coins.
    • Nothing random: no packs drawn blind, no chance, no duplicates, no trading.
-   • No sacred figure and no real person is ever an avatar (`sacred`/`real` refuse). */
+   • Sacred figures and real people may be collectibles (owner, 2 Oct 2026). A catalogue marks them
+     `sacred: true` / `real: true` so a test can keep them honest: a real person's card carries a
+     one-line `about`, and a sacred figure is never in a pack named for villains. */
 
 import { spend, balance } from './bizzing-wallet.js';
 
@@ -60,7 +62,7 @@ export function validate(cat) {
     if (!Number.isInteger(a.pack) || a.pack < 1 || a.pack > PACKS) err.push(`${a.id}: pack ${a.pack} out of 1–${PACKS}`);
     if (!a.name) err.push(`${a.id}: no name`);
     if (!a.art) err.push(`${a.id}: no art`);
-    if (a.sacred || a.real) err.push(`${a.id}: sacred figures and real people are never avatars`);
+    if (a.real && !a.about) err.push(`${a.id}: a real person needs a one-line about`);
     if ('price' in a && a.price !== TIERS[a.tier]?.price) err.push(`${a.id}: price ${a.price} is not the ${a.tier} price`);
     if ('world' in a && !(Number.isInteger(a.world) && a.world >= 1)) err.push(`${a.id}: world ${a.world} is not a world number`);
     if (a.tier === 'legendary' && !(a.milestone && a.milestone.id && a.milestone.label)) err.push(`${a.id}: a legendary must name its milestone`);
@@ -98,4 +100,9 @@ export function buy(app, who, av, ctx = {}, now = Date.now()) {
 export function buyWorld(app, who, n, ctx = {}, now = Date.now()) {
   if (!Number.isInteger(n) || n < 1 || worldOpen(n, ctx)) return false;
   return spend(app, who, WORLD_PRICE, `world:${n}`, now);
+}
+
+/* A sacred figure is never drawn as a villain: call with the ids of any villain packs. */
+export function sacredSafe(cat, villainPacks = []) {
+  return cat.filter((a) => a.sacred && villainPacks.includes(a.pack)).map((a) => `${a.id}: a sacred figure in a villain pack`);
 }
