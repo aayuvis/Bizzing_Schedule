@@ -98,8 +98,9 @@ Separate repos, separate sites.)
 
 ## Where to pick up
 
-1. **Wire the writer into the siblings** — `integration/bizzing-activity.js`, one import each in
-   Bee, Maths, India, Finance, plus a line on each privacy page (docs/02).
+1. **Wire the shared layer into the siblings** — `integration/bizzing-activity.js`, `bizzing-wallet.js`
+   and `bizzing-avatars.js`/`.css` (one engine: 96 avatars, tiers, worlds, night glow), per
+   docs/family/FAMILY-STANDARD.md v2 and the five FIX briefs. The apps' own chats do the work.
 2. **Watch real children use it** before tuning any wording (CONCEPT §8).
 3. **Capacitor iPhone build** with local notifications (docs/01).
 

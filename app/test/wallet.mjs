@@ -17,6 +17,9 @@ ok('cannot overspend', !W.spend('bee', 'Anaya', 1e6, 'x', T));
 ok('no fractional or negative prices', !W.spend('bee', 'Anaya', 2.5, 'x', T) && !W.spend('bee', 'Anaya', -5, 'x', T));
 ok('a second child is separate', W.balance('Kabir') === 0);
 ok('migration is once per app', W.migrateFrom('bee', 'Kabir', 250, T) === 250 && W.migrateFrom('bee', 'Kabir', 250, T) === 0 && W.balance('Kabir') === 250);
+const b2 = W.balance('Kabir'); W.spend('bee', 'Kabir', 120, 'avatar:thor', T);
+ok('refund returns exactly what was paid, once', W.refund('bee', 'Kabir', 'avatar:thor', T) === 120 && W.refund('bee', 'Kabir', 'avatar:thor', T) === 0 && W.balance('Kabir') === b2);
+ok('refund of something never bought pays nothing', W.refund('bee', 'Kabir', 'avatar:zeus', T) === 0);
 ok('ledger is append-only and explains every coin', W.ledger('Anaya').reduce((a, x) => a + x.n, 0) === W.balance('Anaya'));
 if (fail) { console.log(`wallet: ${fail} FAILED`); process.exit(1); }
-console.log('wallet: all 13 passed');
+console.log('wallet: all 15 passed');
