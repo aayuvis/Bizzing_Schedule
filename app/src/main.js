@@ -46,6 +46,7 @@ const TITLES = { today: 'Today', board: 'Board', week: 'Week', goals: 'Goals', h
    test (or a screenshot) can look at 5pm on a Tuesday whenever it runs. */
 const PIN = new URLSearchParams(location.search).get('now');
 const clockNow = () => (PIN ? new Date(PIN) : new Date());
+S.weekOf = ymd(clockNow());   // the week view opens on the week the whole render agrees on
 const ctx = () => { const d = clockNow(); return { S, h: S.h, kid: M.activeKid(S.h), today: ymd(d), now: nowMin(d) }; };
 
 let undoFn = null;
