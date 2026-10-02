@@ -144,7 +144,7 @@ On phones the bar keeps ⬡ ☰ logo … coin · avatar. Search, theme and 🔒 
 
 **Rules**
 - **Home is always first**, and the app's map is always second.
-- At most 5 tabs, at least 4.
+- At most 6 tabs, at least 4 (6 since 2 Oct 2026, for Bizzing India's My Feed; prefer 5).
 - No "More" tab: secondary areas go in ☰.
 - Back always stays in the app, through hash routes.
 

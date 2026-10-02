@@ -302,7 +302,7 @@ Gap between bar items: **9** desktop, **4** phone. The ⬡ hides (`visibility: h
 | | Desktop tab row | Phone tab bar |
 |---|---|---|
 | Position | Directly under the bar, y 56; row height 54 with 10 padding below | Fixed to the bottom, full width, 68 tall (+ safe area) |
-| Items | 4–5 **equal-width** tabs (`flex: 1 1 0`), gap 7, spanning x 86 → 1193 | 4–5 equal items, min 53 tall, padding 7 7 8 |
+| Items | 4–6 **equal-width** tabs (prefer 5) (`flex: 1 1 0`), gap 7, spanning x 86 → 1193 | 4–6 equal items (6 → 63 wide each, label 11px), min 53 tall, padding 7 7 8 |
 | Item | Height 45, padding 11/13, radius 999, icon 23 + label, gap 9 | Icon 25 above label, gap 3, radius 14 |
 | Label | Fraunces 800 16.4px, letter-spacing 0.16 | Hanken 700 12px |
 | Idle | Text `--bz-muted`; icon in its tab colour (Bee: #6C4FE0 · #6C4FE0 · #E0457B · #16956B · #3D7DF0) | Text and icon `--bz-muted` |
