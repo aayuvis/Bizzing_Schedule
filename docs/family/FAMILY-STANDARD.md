@@ -100,6 +100,16 @@ Each mascot is drawn once as a model sheet with **six poses**: wave, cheer, thin
 
 ## 3. The family top bar and the ☰ menu
 
+> **Use the shell — do not rebuild it (owner, 2 Oct 2026).** Five apps reading this prose built five different
+> top bars and homes. Bee's chrome and home are now one drop-in: `integration/bizzing-shell.js` + `.css`
+> (`shell()`, `home()`, `bindShell()`), measured from Bee's live DOM. An app passes its words, mascot, tabs and
+> colours (`--bz-accent` …) and never restyles the geometry. `integration/shell-check.mjs` measures the app
+> against Bee at 1280×800 and 390×844 — top bar and every button in it, the tab row, the three top tiles, the
+> journey cards, the tip and quote, the phone column order and bottom bar, and the ☰ drawer opening on the left
+> and closing on Esc — and **each app's browser check must call it and pass**. Home is exactly Bee's three rows
+> (greeting · daily ring · "… of the hour" / two journey cards / tip · quote) and the footer; anything else
+> lives on its own tab or in ☰.
+
 Bee's top bar is the template: the same 56px height and the same order in every app.
 
 `[⬡ Hive] [☰] [mascot + Bizzing App] ……… [search] [coin chip] [theme] [🔒] [avatar ▾]`
