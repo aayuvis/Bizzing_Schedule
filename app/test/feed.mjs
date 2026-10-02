@@ -58,5 +58,11 @@ const TH = F.feedFor({ items: thin, band: '8-10', now: T, level: 4, signals: [{ 
 ok('even when far-ahead cards are hot, none beyond the next level', TH.every((x) => !x.id.startsWith('hi')));
 ok('even when review is hot, at most a quarter is review', TH.filter((x) => x.id.startsWith('lo')).length <= 5, TH.map((x) => x.id.replace(/\d+/, '')).join(','));
 ok('even when the next level is hot, at most two peeks', TH.filter((x) => x.id.startsWith('nx')).length <= 2);
+// level-agnostic cards: allowed, at most a quarter, never crowding out the child's level
+const ag = lv.concat([...Array(300)].map((_, i) => ({ id: 'A' + i, kind: kinds[i % 4], bands: ['8-10'], topics: ['hot'], title: 'a' })));
+const AG = F.feedFor({ items: ag, band: '8-10', now: T, level: 4, signals: [{ topic: 'hot', w: 30, why: 'B' }], maxKind: 99, maxWhy: 99 });
+ok('level-agnostic cards appear, labelled any', AG.some((x) => x.tier === 'any'));
+ok('even when they are hot, at most a quarter of a session is level-agnostic', AG.filter((x) => x.tier === 'any').length <= 5, AG.map((x) => x.tier[0]).join(''));
+ok('and the child\'s own level still leads', AG.filter((x) => x.tier === 'now').length >= 12);
 if (fail) { console.log(`feed: ${fail} FAILED`); process.exit(1); }
-console.log('feed: all 27 passed');
+console.log('feed: all 30 passed');
