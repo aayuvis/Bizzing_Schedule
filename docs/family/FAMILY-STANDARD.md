@@ -209,6 +209,11 @@ at, changing with what they do. **The LAST tab in every app** (after Play). One 
 - **It ends:** about twenty cards, then a finished card. No infinite scroll, autoplay, likes, counts or
   streaks. Scrolling earns nothing; only a right answer to a card's question pays, once, as `answer`.
   At most five questions, never three of a kind in a row, one reason never leads more than six cards.
+- **Structured by level and progress (owner, 2 Oct 2026).** Every card carries `level` on the app's own
+  ladder; given the child's level a session is ≥ 60% at that level, ≤ 25% review from levels passed
+  (what slipped first), and at most 2 "Coming up on …" peeks at the next level — nothing beyond it.
+  **At least 1,000 cards** (up to 2,000 where the corpus honestly holds them), and **every level has at
+  least 40**, so no level's feed runs thin. A child who climbs gets a different feed.
 - A grown-up can switch it off behind the PIN. `?demo` writes nothing.
 
 ## 7. Worlds — at least six per app, alive by day and by night

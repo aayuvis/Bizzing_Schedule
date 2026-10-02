@@ -37,5 +37,26 @@ const html = F.feedCard({ id: 'x', kind: 'play', title: 'Q', play: { q: 'Which?'
 ok('a card renders its question with every option', (html.match(/data-bzf="ans"/g) || []).length === 3);
 ok('a wrong answer holds and names the right one', /Not this time — it is “right”/.test(F.feedCard({ id: 'x', kind: 'play', title: 'Q', play: { q: '?', opts: ['right', 'w'] } }, {}, { st: 'wrong', o: 1 })));
 ok('the feed ends with a finished card that loads nothing more', /That’s today’s feed/.test(F.feedEnd({ href: '#/continue' })) && !/load more|see more/i.test(F.feedEnd({})));
+// level and progress: 1,200 cards over 10 levels; a child on level 4
+const lv = [];
+for (let i = 0; i < 1200; i++) lv.push({ id: 'L' + i, kind: kinds[Math.floor(i / 10) % 4], bands: ['8-10'], level: 1 + (i % 10), topics: ['x' + (i % 40)], key: i === 11 ? 'slip' : undefined, title: 'L' + i });
+const L4 = F.feedFor({ items: lv, band: '8-10', now: T, level: 4, levelName: (n) => 'Level ' + n, due: { slip: 'A word that slipped — its gap is over' } });
+const lvOf = (x) => lv.find((i) => i.id === x.id).level;
+ok('nothing beyond the next level ever appears', L4.every((x) => lvOf(x) <= 5));
+ok('most of the session is at the child\'s level (≥ 60%)', L4.filter((x) => lvOf(x) === 4).length >= 12, L4.map(lvOf).join(','));
+ok('at most two peeks at the next level, labelled', L4.filter((x) => lvOf(x) === 5).length <= 2 && L4.filter((x) => lvOf(x) === 5).every((x) => x.why === 'Coming up on Level 5'));
+ok('review is at most a quarter', L4.filter((x) => lvOf(x) < 4).length <= 5);
+ok('what slipped from an earlier level comes back first', L4[0].id === 'L11' && L4[0].tier === 'review');
+const L8 = F.feedFor({ items: lv, band: '8-10', now: T, level: 8 });
+ok('a child who climbs gets a different feed (only shared review cards overlap)', L8.filter((x) => L4.some((y) => y.id === x.id)).every((x) => x.tier === 'review') && L8.filter((x) => x.tier === 'now').every((x) => lvOf(x) === 8));
+// lopsided: few cards at the child's level, many far above and many below — the caps must hold
+const thin = [...Array(4)].map((_, i) => ({ id: 'n' + i, kind: kinds[i], bands: ['8-10'], level: 4, title: 'n' }))
+  .concat([...Array(60)].map((_, i) => ({ id: 'hi' + i, kind: kinds[i % 4], bands: ['8-10'], level: 9, topics: ['hot'], title: 'h' })))
+  .concat([...Array(60)].map((_, i) => ({ id: 'lo' + i, kind: kinds[i % 4], bands: ['8-10'], level: 1, topics: ['hot'], title: 'l' })))
+  .concat([...Array(60)].map((_, i) => ({ id: 'nx' + i, kind: kinds[i % 4], bands: ['8-10'], level: 5, topics: ['hot'], title: 'x' })));
+const TH = F.feedFor({ items: thin, band: '8-10', now: T, level: 4, signals: [{ topic: 'hot', w: 30, why: 'B' }], maxKind: 99, maxWhy: 99 });
+ok('even when far-ahead cards are hot, none beyond the next level', TH.every((x) => !x.id.startsWith('hi')));
+ok('even when review is hot, at most a quarter is review', TH.filter((x) => x.id.startsWith('lo')).length <= 5, TH.map((x) => x.id.replace(/\d+/, '')).join(','));
+ok('even when the next level is hot, at most two peeks', TH.filter((x) => x.id.startsWith('nx')).length <= 2);
 if (fail) { console.log(`feed: ${fail} FAILED`); process.exit(1); }
-console.log('feed: all 18 passed');
+console.log('feed: all 27 passed');

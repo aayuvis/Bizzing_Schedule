@@ -34,13 +34,24 @@ export function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++)
 
 /* opts = { items, band, now, signals:[{topic, w, why}], due:{ topicOrKey: why }, seen:{ id: dayNumber },
             unlocked(item) → bool, skip(item) → bool, extra(item) → { s, why } | null,
-            limit, maxPlay, maxKind, maxWhy }  → [{ id, kind, why, score }] */
+            level, levelName(n) → 'Level 3' | 'the Deep Mine', limit, maxPlay, maxKind, maxWhy }
+            → [{ id, kind, why, score, tier: 'now'|'review'|'next' }]
+
+   LEVEL AND PROGRESS (owner, 2 Oct 2026: "structured by level and progress of the kid"). Every
+   card carries `level`: its place on the app's own ladder (a level, a band of stops, a rung).
+   Given the child's `level`, the session is built in three tiers, by arithmetic:
+     now     cards AT the child's level — most of the session (≥ 60%)
+     review  cards from levels already passed — what slipped first, then a few to keep (≤ 25%)
+     next    at most 2 cards from the very next level, labelled "Coming up on …" — a peek, never more
+   Nothing beyond the next level ever appears. A child who climbs gets a different feed. */
 export function feedFor(o) {
   const now = o.now ?? Date.now(), today = Math.floor(now / DAY), limit = o.limit ?? LIMIT;
   const ctx = {};
   for (const sg of o.signals || []) if (!ctx[sg.topic] || ctx[sg.topic].w < sg.w) ctx[sg.topic] = sg;
-  const scored = [];
+  const scored = [], L = o.level, nm = o.levelName || ((n) => 'Level ' + n);
+  const tierOf = (it) => (L == null || it.level == null ? 'now' : it.level === L ? 'now' : it.level < L ? 'review' : it.level === L + 1 ? 'next' : null);
   for (const it of o.items || []) {
+    const tier = tierOf(it); if (!tier) continue;                               // nothing beyond the next level
     if (o.band && it.bands && !it.bands.includes(o.band)) continue;              // never above the band
     if (o.unlocked && !o.unlocked(it)) continue;                                // not reached yet
     if (o.skip && o.skip(it)) continue;                                         // already done (a story read)
@@ -52,11 +63,15 @@ export function feedFor(o) {
     if (dueWhy) { s += 9; why = dueWhy; }
     const seen = o.seen && o.seen[it.id];
     if (seen == null) s += 2; else if (today - seen < 7) s -= 12; else s -= 2;
+    if (tier === 'now') s += 6;
+    else if (tier === 'review') { s += dueWhy ? 0 : -1 - Math.min(4, L - it.level); if (!why) why = 'To keep: from ' + nm(it.level); }
+    else { s += 1; why = 'Coming up on ' + nm(it.level); }
     s += (hash(it.id + ':' + today) % 1000) / 600;                               // variety, the same all day
-    scored.push({ it, s, why });
+    scored.push({ it, s, why, tier });
   }
   scored.sort((a, b) => b.s - a.s);
-  const out = [], kinds = {}, whys = {}; let plays = 0;
+  const out = [], kinds = {}, whys = {}, tiers = { now: 0, review: 0, next: 0 }; let plays = 0;
+  const cap = { review: Math.floor(limit * 0.25), next: 2 };
   const pool = scored.slice(), maxPlay = o.maxPlay ?? MAX_PLAY, maxKind = o.maxKind ?? MAX_KIND, maxWhy = o.maxWhy ?? MAX_WHY;
   while (out.length < limit && pool.length) {
     let pick = -1, bestS = -Infinity;
@@ -64,6 +79,7 @@ export function feedFor(o) {
       const k = pool[i].it.kind, n = out.length;
       if (n >= 2 && out[n - 1].kind === k && out[n - 2].kind === k) continue;     // never three of a kind in a row
       if (pool[i].it.play && plays >= maxPlay) continue;
+      const tr = pool[i].tier; if (cap[tr] != null && tiers[tr] >= cap[tr]) continue;
       if ((kinds[k] || 0) >= maxKind) continue;
       const wn = pool[i].why ? (whys[pool[i].why] || 0) : 0;
       if (wn >= maxWhy) continue;                                               // one reason is not the whole feed
@@ -74,7 +90,8 @@ export function feedFor(o) {
     const p = pool.splice(pick, 1)[0];
     kinds[p.it.kind] = (kinds[p.it.kind] || 0) + 1; if (p.it.play) plays++;
     if (p.why) whys[p.why] = (whys[p.why] || 0) + 1;
-    out.push({ id: p.it.id, kind: p.it.kind, why: p.why || o.fallbackWhy || 'New for you', score: p.s });
+    tiers[p.tier]++;
+    out.push({ id: p.it.id, kind: p.it.kind, why: p.why || (L != null ? 'For ' + nm(L) : o.fallbackWhy || 'New for you'), score: p.s, tier: p.tier });
   }
   return out;
 }
