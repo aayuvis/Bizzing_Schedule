@@ -248,7 +248,7 @@ async function feed() {
 /* the drop-in writer the sibling apps will use: active minutes count, idle ones do not */
 async function writer() {
   const { readFileSync } = await import('node:fs');
-  const src = readFileSync(fileURLToPath(new URL('../../integration/bizzing-activity.js', import.meta.url)), 'utf8').replace('export function', 'function') + '\nwindow.trackActivity = trackActivity;';
+  const src = readFileSync(fileURLToPath(new URL('../../integration/bizzing-activity.js', import.meta.url)), 'utf8').replaceAll('export function', 'function') + '\nwindow.trackActivity = trackActivity;';
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await page.clock.install({ time: new Date('2026-09-23T16:00:00') });
