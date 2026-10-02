@@ -53,7 +53,38 @@ Paste this into the Bizzing Finance chat, or point that chat at this file. It is
 | O3 | Hive integration | **1** | No bizzing.activity writer (grep empty); no deep links to Bee/India/Maths/Schedule beyond a landing mention. | Import integration/bizzing-activity.js and write lesson/game minutes; add family app links. | Writes `bizzing.activity` (minutes + milestones) via the family drop-in; accepts `#/continue` and `?from=hive`; top bar ⬡ back to Hive. | S |
 | O4 | Family brand layer | **3** | Bizzing wordmark, mark, Bee-style Atlas and tokens; but own fonts/palette and no shared family avatars or ds-src tokens. | Adopt the family token package and avatars so Finance looks like a sibling. | Family top bar, honeycomb mark, Continue card shape, medallion medals and the shared avatar set are in place. | M |
 
-Already at 4 or 5 (keep them there): A1 Welcome screen, A3 Time to first learning, B6 Navigation & back, B7 Sibling switching, C4 Gating & unlocks, D5 Mastery from evidence, F2 Games teach, F4 Keyboard + touch, I3 No loot/gacha/rarity, I4 Medals from evidence, L1 Visual polish, M3 PIN & grown-up controls, N1 Offline / PWA, N4 Storage seam & migrations, N5 Privacy by construction.
+Already at 4 or 5 (keep them there): A1 Welcome screen, A3 Time to first learning, B6 Navigation & back, B7 Sibling switching, C4 Gating & unlocks, D5 Mastery from evidence, F2 Games teach, F4 Keyboard + touch, I3 No random rewards (rarity allowed), I4 Medals from evidence, L1 Visual polish, M3 PIN & grown-up controls, N1 Offline / PWA, N4 Storage seam & migrations, N5 Privacy by construction.
+
+## 3a. Draw inspiration from
+
+For each element below 4, copy the in-family model first, then the outside benchmark. Full table in the family standard §16.
+
+| Id | Element | Copy from (Bizzing) | What exactly | Outside benchmark | Don't borrow |
+|---|---|---|---|---|---|
+| A4 | Profile setup | **Bizzing Maths** | viewWelcome: first name, 3 age bands, avatar; the hint 'never surname, birthday, photo, email' | Khan Academy Kids: Parent-created child profiles with a name and avatar only | — |
+| A5 | Demo mode | **Bizzing Bee** | The landing 'try it' card: 8 real words with recorded audio before any account (landSay/landCheck); the Hive's ?demo sample family | Duolingo: A full first lesson before sign-up | — |
+| B1 | Home layout | **Bizzing Bee** | The home grid: honeycomb backdrop, Bizzy greeting card with speech bubble, daily ring, word-of-the-hour card, two painted journey cards, tip and quote row, five tabs (owner's chosen family template) | Duolingo: One obvious next step that everything else on home supports | Hearts, gems, leagues and the streak flame on home |
+| B2 | One Continue | **Bizzing Maths** | Journey card 'Continue' that deep-links to the next station (views.js journeyCard) | Duolingo: A single, large, always-the-same-place start button | — |
+| B3 | Progress on home | **Bizzing Maths** | 'Station 1 of 16' meter and rank bar right beside Continue | Brilliant: Course progress shown as position on a path, not a percentage list | — |
+| C3 | Learning path | **Bizzing Maths** | 10 levels, 59 lands, 165 stops; concepts spiral across levels; land and level tests | Brilliant / DragonBox: Short ordered steps where each one builds the next | — |
+| C6 | Rank moves only on learning | **Bizzing Maths** | 9 ranks Pebble→Aryabhata, each with a sourced fact, moving only on right answers | Khan Academy: Mastery levels (Familiar → Proficient → Mastered) from evidence | XP for time, logins or games of chance |
+| D1 | The why before the drill | **Bizzing Maths** | Stop tabs Story → Learn (worked steps, figure, algebra) → Your turn → Drill | Brilliant: Explain by doing: an interactive picture of why, before practice | — |
+| D3 | Answer feedback | **Bizzing Maths** | Wrong answer holds: 'Not this time. It is 26' then the trick worked on the child's own question | Khan Academy: Step-by-step hints on the exact item the child got wrong | Auto-advancing past a wrong answer |
+| D7 | Facts & sources | **Bizzing Geography** | Facts generated from Natural Earth data; test/data.mjs proves capitals sit inside their country | Britannica Kids: Every fact traceable to a named source | — |
+| D8 | Question testing | **Bizzing Maths** | ~57k generated questions through trick, answer and plain arithmetic; leak checks; permuted options | (no consumer equivalent — Maths and Geography are the benchmark) | — |
+| E1 | Short daily session | **Bizzing Maths** | 'Twenty facts' and 10-question drills that end on an end card | Duolingo: A 3–5 minute lesson that always ends with a clear finish screen | Daily-goal pressure and streak reminders |
+| F3 | Game polish | **Bizzing Bee** | Type Blaster: painted backdrop, combo, on-screen keyboard, 72 sound calls, confetti | Duolingo (lesson animations) / Toca Boca: Every answer moves something; a small, satisfying sound per action | — |
+| J1 | Celebration moments | **Bizzing Bee** | Confetti, sounds, level-up evolution; the Hive's medal spin-in and kudos reveal | Duolingo / Apple Fitness rings: A short, specific end-of-lesson celebration that names what was done | Comparing children or leaderboards |
+| J2 | No streaks | **Bizzing Maths** | 'Nothing expires. A day off costs nothing.' and 'Not this time' on a miss; the Hive's 'good days this week' | Khan Academy Kids: No loss for a day off | Duolingo's streak and streak freeze |
+| K1 | Narration | **Bizzing Bee** | 128k words each with a recorded clip, a voice review queue and clip lint | Khan Academy Kids / Epic Read-to-me: Every instruction read aloud for pre-readers; text highlighted as it is read | — |
+| L4 | Phone layout | **Bizzing Maths** | Thumb-reachable keypad and tab bar; no overflow at 390px | Apple HIG: 44pt touch targets, bottom navigation, nothing past the screen edge | — |
+| L5 | Accessibility | **Bizzing Maths** | Skip link, aria-labels, radio pickers with arrow keys, reduced motion, contrast tested | WCAG 2.2 AA: Contrast, focus, motion and labels as testable rules | — |
+| M1 | Grown-ups report card | **Bizzing Bee** | Parent zone: band, accuracy, five readiness signals, missed-word log | IXL Analytics / Apple Screen Time weekly report: Skill-level diagnosis, plus a short weekly digest a parent actually reads | — |
+| M2 | Reports learning, not usage | **Bizzing Maths** | Reports fluent facts, lapses ('slipped since fluent'), traps to help with — not minutes | IXL diagnostic: Says what the child can do now and what to work on next | Time-on-app shown as achievement |
+| N2 | First-load weight | **Bizzing Hive** | ~1.3 MB whole build; JS ~112 KB; art as WebP files, never inlined | web.dev performance budgets: A written budget enforced in the build | — |
+| N3 | Tests & gates | **Bizzing Maths** | 13 engine suites + a Chromium check on desktop and phone, each assertion proven by breaking it | (internal benchmark) | — |
+| O3 | Hive integration | **Bizzing Hive** | The tested reader of bizzing.activity and the drop-in writer + wallet helper in integration/ | Apple Family Sharing / Google Family Link: One family account that every app recognises | — |
+| O4 | Family brand layer | **Bizzing Hive** | The family top bar and honeycomb mark defined in the standard | Google Workspace app switcher: The same top bar in every app so moving between them feels like one product | — |
 
 ## 3. Harmonise with the family
 

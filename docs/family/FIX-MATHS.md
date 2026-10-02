@@ -35,7 +35,24 @@ Paste this into the Bizzing Maths chat, or point that chat at this file. It is t
 | N2 | First-load weight | **2** | Single 1.32 MB JS chunk (463 KB gz), Vite warns; first load ~3.9 MB transferred; 845 KB fonts. | Code-split chapters/library by route; lazy-load per-theme fonts. | First screen ≤ 1.5 MB transferred on a phone; initial JS ≤ 400 KB gzipped; data and art lazy per route. | M |
 | O3 | Hive integration | **1** | grep for bizzing.activity in src: none; Schedule's writer not wired. | Import integration/bizzing-activity.js and write minutes/stops; add privacy line. | Writes `bizzing.activity` (minutes + milestones) via the family drop-in; accepts `#/continue` and `?from=hive`; top bar ⬡ back to Hive. | S |
 
-Already at 4 or 5 (keep them there): A1 Welcome screen, A3 Time to first learning, A4 Profile setup, B2 One Continue, B3 Progress on home, B6 Navigation & back, C3 Learning path, C4 Gating & unlocks, C6 Rank moves only on learning, D1 The why before the drill, D3 Answer feedback, D5 Mastery from evidence, D7 Facts & sources, D8 Question testing, E1 Short daily session, F2 Games teach, F4 Keyboard + touch, I3 No loot/gacha/rarity, J2 No streaks, L1 Visual polish, L4 Phone layout, L5 Accessibility, M2 Reports learning, not usage, M3 PIN & grown-up controls, N1 Offline / PWA, N3 Tests & gates, N4 Storage seam & migrations, N5 Privacy by construction, O4 Family brand layer.
+Already at 4 or 5 (keep them there): A1 Welcome screen, A3 Time to first learning, A4 Profile setup, B2 One Continue, B3 Progress on home, B6 Navigation & back, C3 Learning path, C4 Gating & unlocks, C6 Rank moves only on learning, D1 The why before the drill, D3 Answer feedback, D5 Mastery from evidence, D7 Facts & sources, D8 Question testing, E1 Short daily session, F2 Games teach, F4 Keyboard + touch, I3 No random rewards (rarity allowed), J2 No streaks, L1 Visual polish, L4 Phone layout, L5 Accessibility, M2 Reports learning, not usage, M3 PIN & grown-up controls, N1 Offline / PWA, N3 Tests & gates, N4 Storage seam & migrations, N5 Privacy by construction, O4 Family brand layer.
+
+## 3a. Draw inspiration from
+
+For each element below 4, copy the in-family model first, then the outside benchmark. Full table in the family standard §16.
+
+| Id | Element | Copy from (Bizzing) | What exactly | Outside benchmark | Don't borrow |
+|---|---|---|---|---|---|
+| A5 | Demo mode | **Bizzing Bee** | The landing 'try it' card: 8 real words with recorded audio before any account (landSay/landCheck); the Hive's ?demo sample family | Duolingo: A full first lesson before sign-up | — |
+| B1 | Home layout | **Bizzing Bee** | The home grid: honeycomb backdrop, Bizzy greeting card with speech bubble, daily ring, word-of-the-hour card, two painted journey cards, tip and quote row, five tabs (owner's chosen family template) | Duolingo: One obvious next step that everything else on home supports | Hearts, gems, leagues and the streak flame on home |
+| B7 | Sibling switching | **Bizzing Finance** | 'Children in this household' switch + add; each child keeps their own town, money and ladder | Khan Academy Kids / Epic: Child profiles under one grown-up, one tap to switch | — |
+| F3 | Game polish | **Bizzing Bee** | Type Blaster: painted backdrop, combo, on-screen keyboard, 72 sound calls, confetti | Duolingo (lesson animations) / Toca Boca: Every answer moves something; a small, satisfying sound per action | — |
+| I4 | Medals from evidence | **Bizzing Finance** | 50 decision badges ('Steady hand: did nothing on a red day'), a deeds shelf, a first-receipt keepsake | Khan Academy badges / Apple Fitness awards: Earned once from real evidence, shown on a shelf with what earned it | Badges for days in a row |
+| J1 | Celebration moments | **Bizzing Bee** | Confetti, sounds, level-up evolution; the Hive's medal spin-in and kudos reveal | Duolingo / Apple Fitness rings: A short, specific end-of-lesson celebration that names what was done | Comparing children or leaderboards |
+| K1 | Narration | **Bizzing Bee** | 128k words each with a recorded clip, a voice review queue and clip lint | Khan Academy Kids / Epic Read-to-me: Every instruction read aloud for pre-readers; text highlighted as it is read | — |
+| M1 | Grown-ups report card | **Bizzing Bee** | Parent zone: band, accuracy, five readiness signals, missed-word log | IXL Analytics / Apple Screen Time weekly report: Skill-level diagnosis, plus a short weekly digest a parent actually reads | — |
+| N2 | First-load weight | **Bizzing Hive** | ~1.3 MB whole build; JS ~112 KB; art as WebP files, never inlined | web.dev performance budgets: A written budget enforced in the build | — |
+| O3 | Hive integration | **Bizzing Hive** | The tested reader of bizzing.activity and the drop-in writer + wallet helper in integration/ | Apple Family Sharing / Google Family Link: One family account that every app recognises | — |
 
 ## 3. Harmonise with the family
 

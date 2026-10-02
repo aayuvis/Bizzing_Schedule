@@ -22,9 +22,9 @@ and taught as real money in Bizzing Finance.
 | **Earned only for learning** | Correct answers, finished stops/lessons, mastery milestones. **Never** for time on the app, logins, streaks, dice or luck. |
 | **Standard amounts** | Right answer in practice **1** · stop/lesson/story finished **5** · level/band/world mastered **20** · contest/mock completed **10**. An app may not invent bigger payouts. |
 | **Daily earn cap** | 100 coins per app per child per day (stops grinding; it is never shown as a target). |
-| **Spent at fixed prices** | Each app's shop sells its own cosmetics (outfits, stickers, themes, board skins) at a printed price. **No random rewards, no gacha, no packs, no rarity tiers, no doubling or betting.** |
+| **Spent at fixed prices** | Each app's shop sells its own cosmetics (outfits, stickers, themes, board skins) at a printed price. **No random rewards, no gacha, no packs, no doubling or betting.** Content (worlds, lessons) is never bought with coins. |
 | **Never bought with real money** | No path from real money to coins. Paid plans unlock *content*, never coins or cosmetics. |
-| **Nothing paid is cosmetic-exclusive** | A free child can earn every cosmetic. Paid plans never lock avatars or skins behind "rare/legendary". |
+| **Rare avatars stay (owner's decision)** | Avatars may carry rarity tiers (Common · Rare · Epic · Legendary) — they make the collection worth building and help sell the paid plan. Every rare avatar says, on its card, exactly how it is unlocked: **a named learning milestone** ("master 500 words", "finish Level 5") **or included with the paid plan**. Never a random draw, never a pack, never sold one by one for real money, never bought with coins by chance. |
 | **Finance teaches it** | Bizzing Finance shows the same wallet as the child's income: what was earned where, the save / spend / give jars, the bank. It is the one place coins are *taught*. |
 | **The Hive pays nothing** | Keeping a plan is its own reward; the Hive shows medals and the comb, never coins. |
 
@@ -33,16 +33,20 @@ and taught as real money in Bizzing Finance.
 { coins, ledger: [{ a:'bee', t:<ms>, n:+5, why:'stop' }] } } }`. Append to the ledger, never
 rewrite it; trim to 2,000 entries. The server version replaces this key; the shape stays. **Use the shared helper** `integration/bizzing-wallet.js` (`earn`, `spend`, `balance`, `migrateFrom`, `ledger`) from the Bizzing_Schedule repo rather than writing to the key directly — it enforces the amounts, the cap and fixed prices, and is tested (`app/test/wallet.mjs`).
 
-## 2. Home screen anatomy
+## 2. Home screen anatomy — modelled on Bizzing Bee's home
+
+**Bizzing Bee's home is the family template (owner's decision)**: the honeycomb backdrop, the
+mascot greeting card with a speech bubble, the daily ring card, a "… of the hour" card, two big
+painted journey cards, and a row of small tip/quote cards, under five tabs. Every app builds its
+home in that look with its own mascot, art and words. Its one change: **only one card carries the
+filled primary button** (§2.3).
 
 Every app's home has the same five parts, in this order. The app's own world fills them.
 
 1. **Family top bar** (§3).
-2. **Greeting** — one line from the app's mascot, specific to what the child did last.
-3. **ONE Continue card** — the single next step, with a progress bar and a large button.
-   Exactly one primary button on the screen. Never two "next" lessons that disagree.
-4. **Today's three** — up to three small daily cards (a 5-minute practice, a challenge, a
-   story or game). Optional to do; nothing is lost for skipping.
+2. **Greeting card** — the app's mascot with a one-line speech bubble specific to what the child did last (Bee: Bizzy). Beside it, the **daily ring** and one **"… of the hour"** card (word, number, place, story).
+3. **ONE Continue card** — the big painted "Next on your journey" card: the single next step, with a progress bar and the only filled button on the screen. A second painted card may show the longer journey with a progress bar and a secondary (outline) button. Never two "next" lessons that disagree; placement ("Find your level") belongs in onboarding, not home.
+4. **Today's three** — the row of small cards (a tip, a quote, a 5-minute practice, a challenge, a story or game). Optional; nothing is lost for skipping.
 5. **Ways in** — tiles to the app's main areas (Atlas/World, Library, Games, Goals). Maximum
    six tiles.
 
@@ -65,8 +69,7 @@ Same in every app, same height (56px), same order:
   `#/stop/12`…); back returns to the previous screen inside the app.
 - **Deep links from the Hive:** `#/continue` opens the Continue card's target directly;
   `?from=hive` shows a "← back to my day" chip that returns to the Hive.
-- Phone: bottom tab bar, maximum five tabs (Home · World · Practice · Library · Me, or the
-  app's equivalents). Desktop: the same five as a sidebar or top tabs.
+- Five tabs, named as Bee names them: **Home · Atlas · Practice · Library · Play** (each app may rename Atlas to its world, e.g. Word Atlas, Explorer's Atlas). Phone: bottom tab bar; desktop: top tabs as on Bee. The child's own page (avatar, medals, collection) opens from the avatar in the top bar.
 
 ## 5. Profiles and data
 
@@ -164,6 +167,61 @@ named exceptions) · no overflow at 390px measured against the device width · c
 theme · the activity feed is written · coins are earned only by the standard events.
 **Prove each assertion by breaking it once.**
 
+## 16. Benchmarks — where to look before building
+
+For every key element, **copy the in-family model first** (it already follows these rules and
+the code is next door), then look at the outside benchmark for polish. Where a famous product
+does something these rules forbid, it is listed under *Don't borrow*.
+
+**The reference apps, in short:** Bizzing Bee is the model for the **home screen look and feel**
+(the owner's chosen template), narration, game polish, rare-avatar collections and
+try-before-signup. Bizzing Maths is the model for the learning loop, navigation, tests, privacy
+and the single Continue. Bizzing Finance is the model for households, medals and the versioned store.
+Bizzing Hive is the model for home layout, first-load weight, no-streak motivation and family
+integration.
+
+| Id | Element | Copy from (Bizzing) | What exactly | Outside benchmark | Borrow | Don't borrow |
+|---|---|---|---|---|---|---|
+| A1 | Welcome screen | **Bizzing Maths** | Welcome with the promise in one line and the age range ('Fast and fearless with numbers — ages 6 to 14') | Khan Academy Kids | One friendly character, one sentence, one big button | — |
+| A3 | Time to first learning | **Bizzing Maths** | Name + age chip + Let's go → first question in ~5 taps; 'Find my level' starts questions at once | Duolingo | Placement questions begin before the account is finished | — |
+| A4 | Profile setup | **Bizzing Maths** | viewWelcome: first name, 3 age bands, avatar; the hint 'never surname, birthday, photo, email' | Khan Academy Kids | Parent-created child profiles with a name and avatar only | — |
+| A5 | Demo mode | **Bizzing Bee** | The landing 'try it' card: 8 real words with recorded audio before any account (landSay/landCheck); the Hive's ?demo sample family | Duolingo | A full first lesson before sign-up | — |
+| B1 | Home layout | **Bizzing Bee** | The home grid: honeycomb backdrop, Bizzy greeting card with speech bubble, daily ring, word-of-the-hour card, two painted journey cards, tip and quote row, five tabs (owner's chosen family template) | Duolingo | One obvious next step that everything else on home supports | Hearts, gems, leagues and the streak flame on home |
+| B2 | One Continue | **Bizzing Maths** | Journey card 'Continue' that deep-links to the next station (views.js journeyCard) | Duolingo | A single, large, always-the-same-place start button | — |
+| B3 | Progress on home | **Bizzing Maths** | 'Station 1 of 16' meter and rank bar right beside Continue | Brilliant | Course progress shown as position on a path, not a percentage list | — |
+| B6 | Navigation & back | **Bizzing Maths** | Hash routes #/nav/arg with back button and NAV_OF for sub-screens | Apple HIG tab bars | ≤ 5 tabs, back always returns inside the app | — |
+| B7 | Sibling switching | **Bizzing Finance** | 'Children in this household' switch + add; each child keeps their own town, money and ladder | Khan Academy Kids / Epic | Child profiles under one grown-up, one tap to switch | — |
+| C3 | Learning path | **Bizzing Maths** | 10 levels, 59 lands, 165 stops; concepts spiral across levels; land and level tests | Brilliant / DragonBox | Short ordered steps where each one builds the next | — |
+| C4 | Gating & unlocks | **Bizzing Geography** | worldOpen by age band or the place before; tester mode opens gates without rewriting the child | Khan Academy | Units open on readiness; a locked item says exactly how to open it | — |
+| C6 | Rank moves only on learning | **Bizzing Maths** | 9 ranks Pebble→Aryabhata, each with a sourced fact, moving only on right answers | Khan Academy | Mastery levels (Familiar → Proficient → Mastered) from evidence | XP for time, logins or games of chance |
+| D1 | The why before the drill | **Bizzing Maths** | Stop tabs Story → Learn (worked steps, figure, algebra) → Your turn → Drill | Brilliant | Explain by doing: an interactive picture of why, before practice | — |
+| D3 | Answer feedback | **Bizzing Maths** | Wrong answer holds: 'Not this time. It is 26' then the trick worked on the child's own question | Khan Academy | Step-by-step hints on the exact item the child got wrong | Auto-advancing past a wrong answer |
+| D5 | Mastery from evidence | **Bizzing Maths** | objectives.js: goals moved only by evidence; stars at working / 70% / 90%+ pace; Leitner gaps for facts | Anki-style spacing / Khan mastery challenges | Mastery confirmed again after a gap, and re-checked over time | A 'Complete' button the child presses |
+| D7 | Facts & sources | **Bizzing Geography** | Facts generated from Natural Earth data; test/data.mjs proves capitals sit inside their country | Britannica Kids | Every fact traceable to a named source | — |
+| D8 | Question testing | **Bizzing Maths** | ~57k generated questions through trick, answer and plain arithmetic; leak checks; permuted options | (no consumer equivalent — Maths and Geography are the benchmark) | — | — |
+| E1 | Short daily session | **Bizzing Maths** | 'Twenty facts' and 10-question drills that end on an end card | Duolingo | A 3–5 minute lesson that always ends with a clear finish screen | Daily-goal pressure and streak reminders |
+| F2 | Games teach | **Bizzing Maths** | Number Rush feeds Leitner; Make the Target puzzles solved before they are served | DragonBox | The game mechanic *is* the maths, not a reward for it | Prodigy-style battles where the learning is a toll gate |
+| F3 | Game polish | **Bizzing Bee** | Type Blaster: painted backdrop, combo, on-screen keyboard, 72 sound calls, confetti | Duolingo (lesson animations) / Toca Boca | Every answer moves something; a small, satisfying sound per action | — |
+| F4 | Keyboard + touch | **Bizzing Maths** | One shared keypad + keyboard function (padKey); the browser check drives every game both ways | Apple accessibility guidelines | Every action reachable by keyboard and by touch | — |
+| I3 | No random rewards (rarity allowed) | **Bizzing Finance** | Fixed-price wardrobe and companion items from the one wallet; keepsakes 'kept, never given'; a test that fails on any random reward | Apple Fitness limited-edition awards | Rare items earned by a named achievement, with the rule printed on the item | Gacha, packs and loot boxes (Prodigy, Roblox); paying for a chance at a rare |
+| I4 | Medals from evidence | **Bizzing Finance** | 50 decision badges ('Steady hand: did nothing on a red day'), a deeds shelf, a first-receipt keepsake | Khan Academy badges / Apple Fitness awards | Earned once from real evidence, shown on a shelf with what earned it | Badges for days in a row |
+| J1 | Celebration moments | **Bizzing Bee** | Confetti, sounds, level-up evolution; the Hive's medal spin-in and kudos reveal | Duolingo / Apple Fitness rings | A short, specific end-of-lesson celebration that names what was done | Comparing children or leaderboards |
+| J2 | No streaks | **Bizzing Maths** | 'Nothing expires. A day off costs nothing.' and 'Not this time' on a miss; the Hive's 'good days this week' | Khan Academy Kids | No loss for a day off | Duolingo's streak and streak freeze |
+| K1 | Narration | **Bizzing Bee** | 128k words each with a recorded clip, a voice review queue and clip lint | Khan Academy Kids / Epic Read-to-me | Every instruction read aloud for pre-readers; text highlighted as it is read | — |
+| L1 | Visual polish | **Bizzing Maths** | Coherent graph-paper identity with painted plates | Khan Academy Kids / Toca Boca | One art direction applied to every screen and control | — |
+| L4 | Phone layout | **Bizzing Maths** | Thumb-reachable keypad and tab bar; no overflow at 390px | Apple HIG | 44pt touch targets, bottom navigation, nothing past the screen edge | — |
+| L5 | Accessibility | **Bizzing Maths** | Skip link, aria-labels, radio pickers with arrow keys, reduced motion, contrast tested | WCAG 2.2 AA | Contrast, focus, motion and labels as testable rules | — |
+| M1 | Grown-ups report card | **Bizzing Bee** | Parent zone: band, accuracy, five readiness signals, missed-word log | IXL Analytics / Apple Screen Time weekly report | Skill-level diagnosis, plus a short weekly digest a parent actually reads | — |
+| M2 | Reports learning, not usage | **Bizzing Maths** | Reports fluent facts, lapses ('slipped since fluent'), traps to help with — not minutes | IXL diagnostic | Says what the child can do now and what to work on next | Time-on-app shown as achievement |
+| M3 | PIN & grown-up controls | **Bizzing Maths** | PIN stated as a deterrent, backup/restore file, delete child with confirm | Khan Academy Kids parent gate / Apple Screen Time passcode | A grown-up gate before settings and anything that changes the child | — |
+| N1 | Offline / PWA | **Bizzing Maths** | sw.js hashed cache-first, manifest standalone (add PNG 192/512 icons) | Google PWA checklist | Installable, offline after first visit, proper icons | — |
+| N2 | First-load weight | **Bizzing Hive** | ~1.3 MB whole build; JS ~112 KB; art as WebP files, never inlined | web.dev performance budgets | A written budget enforced in the build | — |
+| N3 | Tests & gates | **Bizzing Maths** | 13 engine suites + a Chromium check on desktop and phone, each assertion proven by breaking it | (internal benchmark) | — | — |
+| N4 | Storage seam & migrations | **Bizzing Finance** | One versioned store with migrations v1→v9; refuses to downgrade | (internal benchmark — Maths and Finance) | — | — |
+| N5 | Privacy by construction | **Bizzing Maths** | Name + band + avatar only; no network calls; a privacy page that stays true | Apple Kids category / kidSAFE | No ads, no tracking, data minimal by design | — |
+| O3 | Hive integration | **Bizzing Hive** | The tested reader of bizzing.activity and the drop-in writer + wallet helper in integration/ | Apple Family Sharing / Google Family Link | One family account that every app recognises | — |
+| O4 | Family brand layer | **Bizzing Hive** | The family top bar and honeycomb mark defined in the standard | Google Workspace app switcher | The same top bar in every app so moving between them feels like one product | — |
+
 ---
 
 ## The 39 key elements (minimum 4 each)
@@ -175,7 +233,7 @@ theme · the activity feed is written · coins are earned only by the standard e
 | Progression | C3 learning path · C4 gating · C6 rank moves only on learning |
 | Learning | D1 the why · D3 feedback · D5 mastery · D7 sources · D8 question testing |
 | Sessions & games | E1 short daily session · F2 games teach · F3 game polish · F4 keyboard + touch |
-| Rewards | I3 no loot/gacha · I4 medals from evidence · J1 celebration · J2 no streaks |
+| Rewards | I3 no random rewards (rarity allowed, earned or with the plan) · I4 medals from evidence · J1 celebration · J2 no streaks |
 | Audio & look | K1 narration · L1 visual polish · L4 phone layout · L5 accessibility |
 | Grown-ups | M1 report card · M2 learning not usage · M3 PIN & controls |
 | Platform | N1 offline/PWA · N2 first-load weight · N3 tests · N4 storage seam · N5 privacy |
