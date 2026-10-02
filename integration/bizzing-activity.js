@@ -35,7 +35,7 @@ function store(o) {
 }
 
 export function trackActivity(app, getName = () => null) {
-  if (typeof window === 'undefined' || !/^(bee|maths|india|finance)$/.test(app)) return () => {};
+  if (typeof window === 'undefined' || !/^(bee|maths|geography|india|finance)$/.test(app)) return () => {};
   let lastInput = Date.now(), activeMs = 0, lastTick = Date.now(), session = null, lastActive = 0;
   const poke = () => { lastInput = Date.now(); };
   const EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
@@ -63,4 +63,14 @@ export function trackActivity(app, getName = () => null) {
   };
   const timer = setInterval(tick, TICK);
   return () => { clearInterval(timer); EVENTS.forEach((e) => removeEventListener(e, poke, { capture: true })); };
+}
+
+/* A milestone — a band, world, stop or mastery reached — for Hive goals and the
+   grown-ups' report. m is 0 so it never counts as minutes. */
+export function trackMilestone(app, who, ev, label) {
+  if (typeof window === 'undefined' || !/^(bee|maths|geography|india|finance)$/.test(app)) return;
+  if (!/^(band|world|stop|mastery)$/.test(ev)) return;
+  const d = new Date(), o = load();
+  o.s.push({ a: app, d: ymd(d), t: d.getHours() * 60 + d.getMinutes(), m: 0, ev, label: String(label).slice(0, 80), ...(who ? { who: who.trim() } : {}) });
+  store(o);
 }

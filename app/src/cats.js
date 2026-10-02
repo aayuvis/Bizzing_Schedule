@@ -21,6 +21,7 @@ export const APPS = {
   bee:     { name: 'Bizzing Bee',     emoji: '🐝', what: 'spelling' },
   maths:   { name: 'Bizzing Maths',   emoji: '🔢', what: 'maths' },
   india:   { name: 'Bizzing India',   emoji: '🪔', what: 'stories & Hindi' },
+  geography: { name: 'Bizzing Geography', emoji: '🌍', what: 'maps & the world' },
   finance: { name: 'Bizzing Finance', emoji: '🪙', what: 'money' },
 };
 
