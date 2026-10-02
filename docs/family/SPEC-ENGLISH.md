@@ -199,7 +199,7 @@ This is the strand most likely to break the family's privacy rules. Read it twic
 
 ## 8. Structure inside the app
 
-**Tabs** (§4 of the standard: style and placement are Bee's, names may differ, 4–5 tabs, Home first, map second): **Home · Atlas · Library · Stage · Play**.
+**Tabs** (every number in §8a; §4 of the standard: style and placement are Bee's, names may differ, 4–5 tabs, Home first, map second): **Home · Atlas · Library · Stage · Play**.
 - **Atlas** is the strand map and the journey.
 - **Library** holds the classics, word cards and Literature cards.
 - **Stage** is speaking.
@@ -241,6 +241,192 @@ Avoid owls (Geography's former guide; overused).
 - **Elocution Contest** (Stage).
 
 Every game meets §14 of the standard: title card, how-to, motion and sound on every answer, finish screen showing what was practised, keyboard **and** touch, no luck.
+
+---
+
+## 8a. Layout specification — measured from Bizzing Bee
+
+Every number below was **measured from Bee's live DOM** on 2 Oct 2026, at **1280×800** (desktop) and **390×844** (phone). `integration/bizzing-shell.css` implements these numbers. **Use the shell; do not rebuild any of this.** These tables are for reading and for review, not for re-typing into CSS.
+- `checkShell` holds the top bar, tabs, drawer and Home to these numbers within ±3–5px.
+- `pageHead()` (added to the shell for this spec) does the same for sub-pages.
+
+Units are CSS px as rendered. A "—" means the value follows from the content.
+
+### 8a.1 The frame
+
+```
+desktop 1280                                     phone 390
+┌──────────────────────────────────────────┐    ┌───────────────────────┐
+│ sticky header 111  (bar 56 + tabs 54 + 1)│    │ header 104 (2 rows)   │
+├──────────────────────────────────────────┤    ├───────────────────────┤
+│   content column 1177 max, centred,      │    │ content 360 wide,     │
+│   side padding 35  → cards span 86–1193  │    │ side padding 15       │
+│   top padding 20, bottom 65              │    │ top 19, bottom 110    │
+│                                          │    │                       │
+│                                          │    ├───────────────────────┤
+│                                          │    │ tab bar 68 (fixed)    │
+└──────────────────────────────────────────┘    └───────────────────────┘
+```
+
+| Token | Desktop | Phone |
+|---|---|---|
+| Breakpoint | > 720 | ≤ 720 |
+| Content max width | 1177 (centred; at 1280 it starts at x = 51) | full width |
+| Side padding | 35 | 15 (bar: 14) |
+| Header (sticky, z 20) | 111 = bar 56 + tab row 54 + 1 border | 104 = icon row (y 9, 37 tall) + search row (y 53, 41 tall) |
+| Header background | `--bz-hdr`, 82% opaque, `backdrop-filter: blur(10px)`, 1px `--bz-line` bottom border | same |
+| Content top padding | 20 | 19 |
+| Content bottom padding | 65 | 110 (clears the tab bar) |
+| Grid gap (all home rows) | 13 | 13 |
+
+### 8a.2 Top bar (56 tall desktop; first row of the phone header)
+
+The order is fixed. **x positions are at 1280.**
+
+| # | Element | Desktop rect (x, y, w, h) | Phone rect | Style |
+|---|---|---|---|---|
+| 1 | ⬡ Back to the Hive | 86, 7, 41, 41 | 14, 9, 37, 37 | Icon button: radius 12 (11 phone), `--bz-chip` fill (ink at 7%), icon 21 |
+| 2 | ☰ Menu | 136, 7, 41, 41 | 55, 9, 37, 37 | as above |
+| 3 | Logo (mascot + wordmark) | 187, 7, —, 41 | 96, 9, 28, 37 (mascot only) | Mascot 37×41. Wordmark: Fraunces 800 21.8px, letter-spacing −0.2; "Bizzing" in italic ink, app name in the accent. Gap 10. **Tap = Home.** |
+| — | *(flexible space)* | | | The logo carries `margin-right: auto` |
+| 4 | Search | 541, 7, 414, 41 | 14, 53, 363, 41 (own row) | Pill (radius 999), `--bz-chip` fill, 1px line, padding 9/36/9/41, Hanken 700 14.7px, search icon 19 at left 14. **Sits 9px left of the coin chip.** |
+| 5 | Coin chip | ends at x 1030; min-width 66; 40 tall | 37 tall | Pill, gradient #ffd24d → #f0a93c (135°), inset shadow 0 −2 0 rgba(0,0,0,.12), text #5a3d00, Hanken 900 14.2px, coin icon 17, gap 6. **Opens the wallet history.** |
+| 6 | Theme | 1039, 7, 41, 41 | 37×37 | Icon button; moon in light mode, sun in dark |
+| 7 | 🔒 Grown-ups | 1089, 7, 41, 41 | 37×37 | Icon button; opens the PIN |
+| 8 | Child switcher | ends at x 1194; 41 tall (≈ 55 wide) | 37 tall | Pill, `--bz-chip` fill, 1px accent-tint border, avatar 34 (29 phone) in a white circle, ▾ caret 10px |
+
+Gap between bar items: **9** desktop, **4** phone. The ⬡ hides (`visibility: hidden`, so nothing moves) only inside a timed drill or game.
+
+### 8a.3 Tab row (desktop) and tab bar (phone)
+
+| | Desktop tab row | Phone tab bar |
+|---|---|---|
+| Position | Directly under the bar, y 56; row height 54 with 10 padding below | Fixed to the bottom, full width, 68 tall (+ safe area) |
+| Items | 4–5 **equal-width** tabs (`flex: 1 1 0`), gap 7, spanning x 86 → 1193 | 4–5 equal items, min 53 tall, padding 7 7 8 |
+| Item | Height 45, padding 11/13, radius 999, icon 23 + label, gap 9 | Icon 25 above label, gap 3, radius 14 |
+| Label | Fraunces 800 16.4px, letter-spacing 0.16 | Hanken 700 12px |
+| Idle | Text `--bz-muted`; icon in its tab colour (Bee: #6C4FE0 · #6C4FE0 · #E0457B · #16956B · #3D7DF0) | Text and icon `--bz-muted` |
+| Hover | `--bz-chip` fill | — |
+| Active (`aria-current="page"`) | **Filled pill in `--bz-accent`, white text and icon** | Accent text and icon on a 12% accent tint |
+| Background | Transparent (on the header blur) | `--bz-tabbar`, 94% white, blur 10, 1px top line |
+
+**English's tabs:** Home (home) · Atlas (map) · Library (book) · Stage (an SVG lectern, to be added to the icon set) · Play (play).
+
+### 8a.4 ☰ Drawer
+
+| | Value |
+|---|---|
+| Panel | Left edge, full height, **327 wide** (max 88vw), white `--bz-card`, shadow 0 24 64 rgba(26,21,35,.2), padding 10/10/24, slides in over 180 ms (none under reduced motion) |
+| Scrim | Fixed, 50% black; tap closes |
+| Header | Avatar 46 (circle) · name (Fraunces 800 19) over "level · coins" (12.5 muted) · sound button · close button; 1px line below |
+| Item | Grid of 34px icon column + text: icon 20 in the accent; title Hanken 700 16; subtitle 12.5 muted; padding 9/6; radius 12; hover `--bz-chip` |
+| Order (fixed) | My page · Shop · Collection · Medals · ── **BIZZING ENGLISH** (section label: 11.5px, 800, uppercase, letter-spacing .08em) up to 4 app items ── · Settings · Grown-ups · Help · Privacy · Back to the Hive |
+| Behaviour | Opens on ☰ (focus moves to its first item) · **Esc closes** · Tab is trapped inside · focus returns to ☰ · a route change closes it |
+
+English's four app items: **Reading log · Word bank · My recordings · Practice**.
+
+### 8a.5 Home (Bee's three rows; `home()`)
+
+```
+desktop                         x: 86 ─────────────── 1193
+row 1  y 131  ┌ greeting 360 ┐13┌ daily ring 360 ┐13┌ … of the hour 360 ┐   h ≈ 207 (all three equal)
+row 2  y 350  ┌ NEXT ON YOUR JOURNEY 547 ──────┐13┌ the book you're reading 547 ┐   h ≈ 280–300
+row 3  y 664  ┌ tip 547 ───────────────────────┐13┌ line of the hour 547 ───────┐   h ≈ 144
+footer        privacy · trademark, centred, 13px muted, 26 above
+```
+
+| Card | Size and style | Contents (English) |
+|---|---|---|
+| **Top tile** (rows 1, 3) | Radius **28 / 11** (asymmetric, Bee's), 1px warm hairline `--bz-card-line`, shadow 0 1 2 rgba(26,21,35,.05), padding 15, min height 194 (row 3: 144). A **hexagon pin** 14×16 in `--bz-pin` sits at top −7, right 22. | — |
+| Greeting | Mascot 150×164 left; gap 15; "Good afternoon," (14.5 muted), the name (Fraunces 800 24), bubble (chip fill, radius 14, padding 9/12, italic 14.2, line-height 1.45) | A line from the last session: "You met Mowgli yesterday — the wolves are waiting." |
+| Daily ring | No padding on the card: the ring area (padding 15) over a foot bar (chip fill, 1px line above, padding 12/18) showing "YOUR LEVEL" (11, 800, uppercase, .1em) and the level (Fraunces 800 16) | Ring: words met · pages read · minutes spoken (targets set by the grown-up) |
+| … of the hour | Radius 15, wash from `--bz-hour` to white at 62%, padding 15/17; badge 48 (radius 14) + kicker (11.5, 800, uppercase, .1em, gold #8a5a00) + title (Fraunces 800 24) + text 14.2 muted | **Word of the hour**, taken from the passage the child is reading |
+| **Journey card** (row 2) | Radius 15, 1px `--bz-line`. Plate 100 tall. Badge 48 overlapping the plate edge by 22 at left 16, with a 3px card-coloured ring (orange #E8842C on the first card, accent on the second). Chip row: dark chip (#1f1a2e, white 12.5/700) right-aligned. Body padding 4/16/15: kicker (14.2 muted), title (Fraunces 800 24), line (14.2 muted), then a button and a progress bar. | Left: **Next on your journey** (the ONLY filled button: Continue). Right: **the book you're reading** (an outline button: Read on, plus a chapter progress bar). |
+| Button | Height 44, radius 12, padding 0 20, Hanken 700 16.4, icon 17; primary = accent fill with inset 0 −3 0 rgba(0,0,0,.18); outline = card fill and 1px line | — |
+| Progress bar | 6 tall, radius 99, track at 18% accent, fill in the accent; label 12.5 muted below | — |
+| Tip / quote (row 3) | Top-tile style, padding 18/20, min height 144. Tip: kicker + text 15.3/1.5 + a round 48 arrow badge at right. Quote: a quote badge + kicker + italic Fraunces 600 16.4/1.45 quotation + "— author" | Tip: a reading or speaking tip. Quote: **a line of the hour, from a held text only**, linking to the book. |
+
+**Phone order** (single 360 column, gap 13): greeting → next on your journey → daily ring → … of the hour → the book → tip → quote → footer. The greeting mascot shrinks to 120×140. **Continue must be wholly above the fold at 390×844.**
+
+### 8a.6 Sub-pages: the page head, sub-nav and progress strip (`pageHead()`)
+
+Every screen except Home opens with one of Bee's two heads, **20 below the header**.
+
+**A. Tab-root head** (Atlas, Library, Stage, Play: the first screen of a tab). Measured from Bee's `#/atlas`.
+
+| Part | Desktop | Phone |
+|---|---|---|
+| Row | Height 37, inset 20 from the content edge (title starts at x 106) | No inset |
+| Title | Fraunces 800 24, line-height 1.15, left | Wraps |
+| Subtitle (optional) | Fraunces 400 13 muted, baseline-aligned, gap 10 | Wraps under the title |
+| Action chips (right) | Height 37, padding 0 15, radius 999, chip fill + 1px line, Hanken 800 13.6, icon 15, gap 6; chips 8 apart; e.g. **Revise · My traps** at x 965 (92 wide) | Wrap under the title |
+
+**B. Deeper head** (any page below a tab root). Measured from Bee's `#/library`.
+
+| Part | Desktop | Phone |
+|---|---|---|
+| Back pill (left) | **90×34** at x 86: radius 999, chip fill + 1px line, padding 0 15 0 12, chevron 14 + the parent's name (Hanken 800 14.2). **Always names the parent ("‹ Library"), never just "Back".** | 15, 123, 90, 34 |
+| Title | **Centred** across the row: Fraunces 800 21.8 + subtitle Fraunces 400 13 muted, gap 10 | Second row, 12 below the pill, left with a 15 inset (title at x 30, y 169) |
+| Actions (optional) | Right-aligned chips, as in A | Wrap |
+
+**C. Sub-nav** (sections within a page, e.g. Library: **Books · Words · Poems · Speeches · Authors**):
+- 13 below the head, inset 20, gap 8.
+- **2–6 chips**, same chip style as A.
+- **The active chip is filled with the accent and has white text** (the same language as the active main tab).
+- It scrolls sideways on a phone with no scrollbar, and never wraps.
+- Each chip is a route (`#/library/poems`), so back works.
+- **Never nest a second sub-nav.** A third level is a deeper page with a back pill.
+
+**D. Progress strip** (optional, under the head or sub-nav). Measured from Bee's Atlas tier strip:
+- White card, radius 17, padding 13/17, min height 55, inset 20, 13 below.
+- A tier chip on the left (Fraunces 800 14.2, accent text on a 12% accent tint, radius 999, padding 5/13), a flexible 6px bar, and a label on the right (Hanken 700 13 muted).
+
+**Spacing rhythm on sub-pages:**
+- header → head **20**;
+- head → sub-nav **13**;
+- sub-nav → strip **13**;
+- strip → first card **13**;
+- between cards **13**;
+- content → page bottom **65** (desktop) or **110** (phone).
+
+### 8a.7 Icons
+
+| Rule | Value |
+|---|---|
+| Set | The shell's `icon(name)` set: 24×24 grid, **2px stroke, round caps and joins, `currentColor`, no fill**, `aria-hidden`. Extend it in the same drawing style (lectern, quill, scroll, theatre mask, microphone, open book, speech bubble); never mix in another icon family. |
+| Sizes | Top bar **21** (in a 41 button) · tab row **23** · phone tab bar **25** · drawer **20** · chips **15** · back chevron **14** · buttons **17** · search **19** · coin **17** · badges **24** (in a 48 tile) |
+| Colour | Inherits text colour. The tab row gives each tab its own icon colour (§8a.3). Drawer icons use the accent. Badges are white on orange #E8842C or #E8962C, or on the accent. |
+| Emoji | **Never in a control, tab, heading or chip** (counted by the check, which must find 0). Emoji may appear only as *content* (a sticker a child chose). |
+| Touch targets | ≥ 44 everywhere except the top bar's Bee geometry (41 desktop, 37 phone), which the shell keeps for parity. Do not add new controls below 44. |
+
+### 8a.8 Type and colour tokens
+
+| Role | Face | Size / weight |
+|---|---|---|
+| Wordmark | Fraunces | 800 21.8 |
+| Tab label | Fraunces | 800 16.4 |
+| Card titles, page titles | Fraunces | 800 24 (deeper page 21.8) |
+| Kickers | Hanken Grotesk | 800 11.5, uppercase, letter-spacing .1em |
+| Body, UI | Hanken Grotesk | 400–700, 14.2–16.4 |
+| Numbers, words-as-objects | Sono | — |
+| **Reading passages (English only)** | A book serif (Literata, Newsreader or Source Serif, self-hosted) | **≥ 18**, line-height ≥ 1.6, measure 60–75 characters, never justified, never letter-spaced |
+
+| Token | Light | Dark (`html[data-bz-dark]`) |
+|---|---|---|
+| `--bz-accent` | the app's brand colour (English: choose one, AA on white with white text) | same, or a lighter tint if AA needs it |
+| `--bz-ink` / `--bz-muted` | rgb(36,30,51) / rgb(106,100,120) | #ece8f6 / #b4adc6 |
+| `--bz-card` / `--bz-line` | #fff / rgb(233,229,240) | #221d33 / #3a3350 |
+| `--bz-chip` | ink at 7% | white at 9% |
+| `--bz-hdr` / `--bz-tabbar` | lilac at 82% / white at 94% | #181425 at 82% / #1c182a at 94% |
+| Kicker gold / pin | #8a5a00 (6.1:1) / #f0b429 | #f0c46a / #f0b429 |
+
+### 8a.9 Motion
+- Drawer: 180 ms ease-out slide from −24px.
+- Hover fills: instant.
+- Legendary avatar shimmer: 3.2 s.
+- World ambient layers pause when the tab is hidden.
+- **Everything freezes under `prefers-reduced-motion`.**
+- No load screens (owner, 2 Oct).
 
 ---
 

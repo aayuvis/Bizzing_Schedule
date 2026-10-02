@@ -108,7 +108,9 @@ Each mascot is drawn once as a model sheet with **six poses**: wave, cheer, thin
 > journey cards, the tip and quote, the phone column order and bottom bar, and the ☰ drawer opening on the left
 > and closing on Esc — and **each app's browser check must call it and pass**. Home is exactly Bee's three rows
 > (greeting · daily ring · "… of the hour" / two journey cards / tip · quote) and the footer; anything else
-> lives on its own tab or in ☰.
+> lives on its own tab or in ☰. Every other screen opens with `pageHead()`: a tab root gets the title
+> left and action chips right; a deeper page gets a back pill naming its parent and a centred title; sections
+> within a page are a sub-nav of 2–6 chips (active = accent fill), never nested. Measured numbers: SPEC-ENGLISH §8a.
 
 Bee's top bar is the template: the same 56px height and the same order in every app.
 
