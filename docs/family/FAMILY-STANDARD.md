@@ -193,6 +193,24 @@ Every app builds its home in Bee's look: a pattern backdrop in the app's motif, 
 - A new child sees one welcome card with a single "Start" button.
 - **No load screens** for now.
 
+## 6a. My Feed — every app (owner, 2 Oct 2026)
+
+A scrollable feed of the app's own content, chosen by where the child is and what level they are
+at, changing with what they do. **The LAST tab in every app** (after Play). One engine and one card:
+`integration/bizzing-feed.js` + `.css` (`feedFor`, `feedCard`, `feedEnd`, `feedHead`, `order`), held by
+`app/test/feed.mjs`. Bizzing India's (docs/30-feed.md there) is the model.
+
+- **Built only from what the app holds.** `tools/build-feed.*` cuts the cards from the corpus at build
+  time, up to 1,000 honest ones — never padded, never typed. Every card's `src` resolves; nothing held
+  for review, nothing above the child's band, every quote found in its source, badges carried over.
+- **Ranked on the device by learning:** context the app passes (what was read, played, learned), its
+  level-fit rule, things that slipped (gap over), novelty, minus what was seen this week. Every card
+  says **why** it is there. Nothing is sent anywhere.
+- **It ends:** about twenty cards, then a finished card. No infinite scroll, autoplay, likes, counts or
+  streaks. Scrolling earns nothing; only a right answer to a card's question pays, once, as `answer`.
+  At most five questions, never three of a kind in a row, one reason never leads more than six cards.
+- A grown-up can switch it off behind the PIN. `?demo` writes nothing.
+
 ## 7. Worlds — at least six per app, alive by day and by night
 
 A **world** is a complete dress for the app, in Bee's and India's sense (Bee: Galaxy, Dojo, Lab, Dino Era…; India: Delhi 6, Madhubani, Diwali Nights…). Each world is a painted place with:
