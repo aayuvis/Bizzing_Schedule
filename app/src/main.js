@@ -359,7 +359,7 @@ const FORM = {
     const c = ctx(), k = kidOf(v.kid);
     const days = [0, 1, 2, 3, 4, 5, 6].filter((i) => v[`d${i}`]);
     const once = v.rep === 'once';
-    const data = { title: v.title.trim(), icon: v.icon || null, cat: v.cat || 'play', start: hm(v.start), dur: +v.dur, days: once ? [] : days.length ? days : [0, 1, 2, 3, 4], date: once ? v.date : null, app: v.app || null };
+    const data = { title: v.title.trim(), icon: v.icon || null, cat: v.cat || 'play', start: hm(v.start), dur: Math.max(5, Math.min(+v.dur, 24 * 60 - hm(v.start))), days: once ? [] : days.length ? days : [0, 1, 2, 3, 4], date: once ? v.date : null, app: v.app || null };
     if (S.grown) { data.anchor = !!v.anchor; data.auto = !!v.auto; data.by = 'grown'; }
     if (v.id) {
       const r = k.routines.find((x) => x.id === v.id);

@@ -94,9 +94,13 @@ async function run(label, vp, isMobile) {
   await page.click('.catpick label:has-text("Music & art")');
   await page.click('.days label:has-text("Sa")');
   await page.click('.days label:has-text("We")');   // untick the pre-selected day
+  ok(`${label}: a plan can run longer than four hours`, +(await page.getAttribute('input[name=dur]', 'max')) >= 600);
+  await page.fill('input[name=start]', '08:00');   // a school-length day: 8:00 for 8 hours
+  await page.$eval('input[name=dur]', (e) => { e.value = '480'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+  ok(`${label}: the length readout follows the slider past four hours`, (await page.textContent('#durOut')).trim() === '8h');
   await page.click('form[data-form=routine] button:has-text("Add to plan")');
   const violin = await page.evaluate(() => window.__bzs.M.activeKid(window.__bzs.S.h).routines.find((r) => r.title === 'Violin'));
-  ok(`${label}: the plan editor's chips, day toggles and icon all save`, violin && violin.cat === 'create' && violin.days.join() === '5' && violin.icon === '🚀', JSON.stringify(violin && { cat: violin.cat, days: violin.days, icon: violin.icon }));
+  ok(`${label}: the plan editor's chips, day toggles and icon all save`, violin && violin.cat === 'create' && violin.days.join() === '5' && violin.icon === '🚀' && violin.dur === 480, JSON.stringify(violin && { cat: violin.cat, days: violin.days, icon: violin.icon, dur: violin.dur }));
 
   // week
   await page.evaluate(() => { location.hash = 'week'; });

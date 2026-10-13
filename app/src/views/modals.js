@@ -43,6 +43,8 @@ function quick(c, m) {
 }
 
 /* ── routine editor ── */
+/* School and other long days run past four hours, so a plan can last up to ten. */
+const DUR_MAX = 10 * 60;
 function routine(c, m) {
   const r = m.r || { title: '', cat: m.cat || 'study', days: m.days || [0, 1, 2, 3, 4], start: m.start ?? 17 * 60, dur: 30, anchor: !!m.anchor, auto: false, app: null };
   const locked = r.anchor && !c.S.grown && m.id;
@@ -62,7 +64,7 @@ function routine(c, m) {
     </div>
     <div class="row2">
       <label class="fld"><span>Starts</span><input type="time" name="start" value="${hhmm(r.start)}" step="300" required></label>
-      <label class="fld"><span>For <output id="durOut">${dur(r.dur)}</output></span><input type="range" name="dur" min="5" max="240" step="5" value="${r.dur}" data-out="durOut"></label>
+      <label class="fld"><span>For <output id="durOut">${dur(r.dur)}</output></span><input type="range" name="dur" min="5" max="${Math.max(DUR_MAX, r.dur)}" step="5" value="${r.dur}" data-out="durOut"></label>
     </div>
     <button type="button" class="btn ghost sm fit" data-act="findTime">✨ Find a free time for me</button>
     ${c.S.grown ? `<div class="fld row wrap"><label class="tog"><input type="checkbox" name="anchor" ${r.anchor ? 'checked' : ''}><span>🔒 Fixed time (set by a grown-up)</span></label>
