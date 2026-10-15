@@ -42,19 +42,25 @@ const S = {
   view: 'today', grown: false, grownTab: 'overview', kudosKid: null,
   modal: null, toast: null, setup: false,
   boardScope: 'today', boardFilter: null, weekOf: ymd(clockNow()),
-  device: { nudges: Store.loadDevice('nudges', false), theme: Store.loadDevice('theme', 'honey') },
+  device: { nudges: Store.loadDevice('nudges', false), theme: Store.loadDevice('theme', 'meadow'), night: Store.loadDevice('night', false) },
   nudged: new Set(), celebrate: [],
 };
 /* Three looks, one tap each. A device preference, never part of the household. */
-const THEMES = [['honey', '🍯', 'Honey'], ['ocean', '🌊', 'Ocean'], ['night', '🌙', 'Night']];
-const THEME_BAR = { honey: '#2A1B4E', ocean: '#0B2545', night: '#120D22' };
-function applyTheme(t) {
-  S.device.theme = THEMES.some(([id]) => id === t) ? t : 'honey';
-  document.documentElement.dataset.theme = S.device.theme;
-  document.querySelector('meta[name=theme-color]')?.setAttribute('content', THEME_BAR[S.device.theme]);
+/* Three muted worlds (Bee's meadow, India's marigold, a calm lagoon), and Night for whichever one is on. */
+const THEMES = [['meadow', '🍯', 'Meadow'], ['marigold', '🌼', 'Marigold'], ['lagoon', '🌊', 'Lagoon']];
+const THEME_BAR = { meadow: ['#3B2E4F', '#120D22'], marigold: ['#26304F', '#10152A'], lagoon: ['#1F3B44', '#0B1B20'] };
+const OLD_THEME = { honey: 'meadow', ocean: 'lagoon', night: 'meadow' };   // the three pills before worlds
+function applyTheme(t, night = S.device.night) {
+  if (t === 'night') night = true;
+  t = OLD_THEME[t] || t;
+  S.device.theme = THEMES.some(([id]) => id === t) ? t : 'meadow';
+  S.device.night = !!night;
+  document.documentElement.dataset.world = S.device.theme;
+  document.documentElement.dataset.theme = S.device.night ? 'night' : 'day';
+  document.querySelector('meta[name=theme-color]')?.setAttribute('content', THEME_BAR[S.device.theme][S.device.night ? 1 : 0]);
 }
-const themePills = (cls = '') => `<div class="themes ${cls}" role="radiogroup" aria-label="Theme">${THEMES.map(([id, e, l]) =>
-  `<button role="radio" aria-checked="${S.device.theme === id}" class="${S.device.theme === id ? 'on' : ''}" data-act="theme" data-v="${id}" title="${l}">${e}<span class="tl"> ${l}</span></button>`).join('')}</div>`;
+const themePills = (cls = '') => `<div class="themes ${cls}" role="group" aria-label="World">${THEMES.map(([id, e, l]) =>
+  `<button role="radio" aria-checked="${S.device.theme === id}" class="${S.device.theme === id ? 'on' : ''}" data-act="theme" data-v="${id}" title="${l}">${e}<span class="tl"> ${l}</span></button>`).join('')}<span class="sep" aria-hidden="true"></span><button class="nite" aria-pressed="${S.device.night}" data-act="night" title="Night">🌙<span class="tl"> Night</span></button></div>`;
 const VIEWS = ['today', 'board', 'week', 'goals', 'hive', 'grown'];
 const TITLES = { today: 'Today', board: 'Board', week: 'Week', goals: 'Goals', hive: 'My Hive', grown: 'Grown-ups' };
 
@@ -195,6 +201,7 @@ const ACT = {
   undo: () => { if (undoFn) { undoFn(); undoFn = null; S.toast = null; save(); render(); renderToast(); } },
 
   theme: (d) => { applyTheme(d.v); Store.saveDevice('theme', S.device.theme); render(); },
+  night: () => { applyTheme(S.device.theme, !S.device.night); Store.saveDevice('night', S.device.night); render(); },
 
   /* icon picker */
   iconOpen: (d, el) => { const pop = el.nextElementSibling; pop.hidden = !pop.hidden; if (!pop.hidden) pop.querySelector('.icon-q').focus(); },
@@ -611,6 +618,7 @@ setInterval(() => {
 /* ─── boot ───────────────────────────────────────────────────────────── */
 
 applyTheme(S.device.theme);
+Store.saveDevice('theme', S.device.theme); Store.saveDevice('night', S.device.night);   // an old 'honey'/'ocean'/'night' choice, carried over once
 const start = location.hash.slice(1);
 if (VIEWS.includes(start)) S.view = start;
 if (new URLSearchParams(location.search).has('demo') && !S.h) ACT.demo();

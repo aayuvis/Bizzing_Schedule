@@ -172,18 +172,19 @@ async function run(label, vp, isMobile) {
   await page.click('button:has-text("Send 🎁")');
   ok(`${label}: kudos arrive on the child's record`, await page.evaluate(() => window.__bzs.S.h.kids[0].kudos[0].text === 'Great focus today!'));
 
-  // themes: three pills, one tap, remembered on this device
+  // worlds: three muted palettes, each with its own night, one tap, remembered on this device
   await page.goto(`${URL0}?now=${NOW}#today`);
   await page.waitForSelector('.themes');
-  ok(`${label}: three theme pills`, (await page.locator('.top .themes button').count()) === 3);
-  await page.click('.top .themes button[data-v="night"]');
-  ok(`${label}: Night applies at once`, (await page.getAttribute('html', 'data-theme')) === 'night');
+  ok(`${label}: three world buttons and a Night button`, (await page.locator('.top .themes button[data-act=theme]').count()) === 3 && (await page.locator('.top .themes button[data-act=night]').count()) === 1);
+  await page.click('.top .themes button[data-v="marigold"]');
+  await page.click('.top .themes button[data-act=night]');
+  ok(`${label}: Night darkens the world you are in`, (await page.getAttribute('html', 'data-theme')) === 'night' && (await page.getAttribute('html', 'data-world')) === 'marigold');
   await page.reload(); await page.waitForSelector('.timeline'); await page.waitForTimeout(500);   // let the background fade finish
-  ok(`${label}: and is remembered`, (await page.getAttribute('html', 'data-theme')) === 'night');
+  ok(`${label}: and both are remembered`, (await page.getAttribute('html', 'data-theme')) === 'night' && (await page.getAttribute('html', 'data-world')) === 'marigold');
   const contrast = await page.evaluate(() => { const el = document.querySelector('.blk-body'); const c = getComputedStyle(el); return [c.backgroundColor, getComputedStyle(el.querySelector('.blk-t')).color]; });
   ok(`${label}: at night a block is dark with light text`, /rgb\((\d+), (\d+), (\d+)\)/.test(contrast[0]) && contrast[0].match(/\d+/g).slice(0, 3).reduce((a, b) => a + +b, 0) < 300 && contrast[1].match(/\d+/g).slice(0, 3).reduce((a, b) => a + +b, 0) > 500, contrast.join(' / '));
-  /* every piece of text on Today, against the colour actually behind it (WCAG AA for large-ish UI text: 3:1; body text 4.5:1) */
-  const poor = await page.evaluate(() => {
+  /* every piece of text on Today, against the colour actually behind it (WCAG AA for large-ish UI text: 3:1), in all six looks */
+  const poorText = () => page.evaluate(() => {
     const lum = (c) => { const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
     const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const st = getComputedStyle(e); if (st.backgroundImage !== 'none') return null;   /* a painting or gradient: judged by eye */ const a = st.backgroundColor.match(/[\d.]+/g); if (a && (a.length < 4 || +a[3] > 0.5)) return st.backgroundColor; } return 'rgb(255,255,255)'; };
     const out = [];
@@ -196,10 +197,16 @@ async function run(label, vp, isMobile) {
     }
     return out.slice(0, 5);
   });
-  ok(`${label}: every word on Today is readable at night`, !poor.length, poor.join(' | '));
-  await noOverflow('today at night'); await shot('9-night');
-  await page.click('.top .themes button[data-v="ocean"]'); await shot('9-ocean');
-  await page.click('.top .themes button[data-v="honey"]');
+  for (const w of ['meadow', 'marigold', 'lagoon']) for (const night of [true, false]) {
+    await page.click(`.top .themes button[data-v="${w}"]`);
+    if ((await page.getAttribute('html', 'data-theme') === 'night') !== night) await page.click('.top .themes button[data-act=night]');
+    await page.waitForTimeout(350);
+    const poor = await poorText();
+    ok(`${label}: every word on Today is readable in ${w}${night ? ' at night' : ''}`, !poor.length, poor.join(' | '));
+    if (night) { await noOverflow(`today in ${w} at night`); }
+    await shot(`9-${w}${night ? '-night' : ''}`);
+  }
+  await page.click('.top .themes button[data-v="meadow"]');
 
   // focus sprint opens and stops
   await page.goto(`${URL0}?now=${NOW}#today`);

@@ -53,11 +53,22 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
 .icon-btn:hover { background: rgba(42,27,78,.07); }
 .icon-btn.on { color: var(--honey-d); background: var(--honey-xl); }
 
-/* ── themes: three, chosen by the pills in the top bar ── */
-:root[data-theme="ocean"] {
-  --honey: #0EA5E9; --honey-d: #0369A1; --honey-l: #BAE6FD; --honey-xl: #E0F2FE;
-  --plum: #0B2545; --plum-2: #13315C; --plum-3: #1E4976; --plum-t: #BFD7EA;
-  --bg: #F3F8FC; --line: #DCE7F0; --line-2: #C6D6E3; --ring-bg: #E3EDF5; --col: #E8F0F7; --violet-s: #E0F2FE; --top: rgba(243,248,252,.86);
+/* ── worlds: three muted palettes (Bee's meadow, India's marigold, a calm lagoon),
+   each with its own night. data-world picks the palette, data-theme="night" darkens it. ── */
+:root[data-world="meadow"] {
+  --honey: #D99A2B; --honey-d: #8E5A0E; --honey-l: #F3DDAE; --honey-xl: #FBF3E2;
+  --plum: #3B2E4F; --plum-2: #4A3C62; --plum-3: #5B4C76; --plum-t: #D3CAE0;
+  --bg: #FAF6EC; --line: #E9E2D2; --line-2: #D8CFBC; --ring-bg: #EFE8D8; --col: #F3EEE2; --violet-s: #EEEAF5; --top: rgba(250,246,236,.86);
+}
+:root[data-world="marigold"] {
+  --honey: #C9762F; --honey-d: #8A4512; --honey-l: #F2D4B5; --honey-xl: #FBF0E4;
+  --plum: #26304F; --plum-2: #323D61; --plum-3: #434F76; --plum-t: #C9D0E6;
+  --bg: #FBF6F0; --line: #EDE2D6; --line-2: #DDCDBD; --ring-bg: #F2E7DB; --col: #F6EEE4; --violet-s: #ECEEF6; --top: rgba(251,246,240,.86);
+}
+:root[data-world="lagoon"] {
+  --honey: #3E8E8A; --honey-d: #1E5A57; --honey-l: #C7E3E0; --honey-xl: #EAF5F3;
+  --plum: #1F3B44; --plum-2: #2A4A54; --plum-3: #375C67; --plum-t: #C3D9DD;
+  --bg: #F4F7F5; --line: #DFE7E4; --line-2: #CAD7D3; --ring-bg: #E5EDEA; --col: #ECF2EF; --violet-s: #E6F0EE; --top: rgba(244,247,245,.86);
 }
 :root[data-theme="night"] {
   color-scheme: dark;
@@ -69,9 +80,25 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
   --good-s: #163A2A; --warn-s: #3D2E12;
   --sh: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
 }
+/* each world keeps its own colour after dark */
+:root[data-theme="night"][data-world="meadow"] { --honey: #E5B04F; --honey-d: #F0C878; }
+:root[data-theme="night"][data-world="marigold"] {
+  --honey: #E39A57; --honey-d: #F2BB86; --honey-l: #5A3A1C; --honey-xl: #2A2A40;
+  --plum: #10152A; --plum-2: #1B2240; --plum-3: #2A3358; --plum-t: #B5BEDB;
+  --ink-2: #CBD2E6; --muted: #94A0C0;
+  --bg: #141A2E; --card: #1D2440; --line: #2C3558; --line-2: #3D4770; --ring-bg: #262F50;
+  --col: #18203A; --violet-s: #283158; --top: rgba(20,26,46,.86);
+}
+:root[data-theme="night"][data-world="lagoon"] {
+  --honey: #6CC2BB; --honey-d: #9AD9D3; --honey-l: #1F4A47; --honey-xl: #1C3236;
+  --plum: #0B1B20; --plum-2: #15292D; --plum-3: #22403F; --plum-t: #A9CFCB;
+  --ink-2: #C6DDDA; --muted: #8FB0AD;
+  --bg: #0F1F23; --card: #172B30; --line: #24403F; --line-2: #345653; --ring-bg: #1F3739;
+  --col: #132529; --violet-s: #1F3A3C; --top: rgba(15,31,35,.86);
+}
 /* A category's soft tint is a pastel set inline; at night it becomes a deep wash
    of the same colour, so dark text never lands on a light block or vice versa. */
-:root[data-theme="night"] [style*="--s:"] { --s: color-mix(in srgb, var(--c) 24%, #221B3A) !important; }
+:root[data-theme="night"] [style*="--s:"] { --s: color-mix(in srgb, var(--c) 24%, var(--card)) !important; }
 :root[data-theme="night"] .btn { background: var(--plum-3); }
 :root[data-theme="night"] .btn.ghost { background: transparent; }
 :root[data-theme="night"] .btn.gold, :root[data-theme="night"] .qa-btn, :root[data-theme="night"] .tab-add { color: #1E1B2E; }
@@ -87,6 +114,9 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
 .themes { display: inline-flex; gap: 4px; background: var(--card); padding: 3px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--line); }
 .themes button { padding: 5px 11px; border-radius: 999px; font-weight: 800; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
 .themes button.on { background: var(--plum); color: #fff; }
+.themes .sep { width: 1.5px; margin: 4px 2px; background: var(--line); }
+.themes button.nite[aria-pressed="true"] { background: var(--plum); color: #fff; }
+:root[data-theme="night"] .themes button.nite[aria-pressed="true"] { background: var(--honey); color: #1E1B2E; }
 :root[data-theme="night"] .themes button.on { background: var(--honey); color: #1E1B2E; }
 .onb-themes { position: fixed; top: 14px; right: 16px; z-index: 5; }
 
@@ -544,11 +574,11 @@ input[type=range] { accent-color: var(--honey); width: 100%; margin: 10px 0; }
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
   .side { display: none; }
-  .top { padding: 10px 16px; gap: 8px; }
+  .top { padding: 10px 12px; gap: 6px; }
   .top-kid { display: flex; align-items: center; gap: 8px; font-weight: 800; padding: 4px 8px 4px 4px; border-radius: 999px; background: var(--card); box-shadow: var(--sh); }
   .top-kid .av { width: 30px; height: 30px; } .top-kid .rot { width: 14px; height: 14px; transform: rotate(90deg); color: var(--muted); }
   .top-t { display: none; }
-  .top .themes { margin: 0 auto; } .themes button { padding: 5px 7px; } .themes .tl { display: none; }
+  .top .themes { margin: 0 auto; gap: 1px; } .themes button { padding: 5px 5px; } .themes .tl { display: none; } .themes .sep { margin: 4px 1px; }
   .top-search { display: none; }
   .m-only { display: inline-grid; }
   .top-r { margin-left: 0; }
@@ -561,6 +591,7 @@ input[type=range] { accent-color: var(--honey); width: 100%; margin: 10px 0; }
   .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--top); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); justify-content: space-around; align-items: center; }
   .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 800; color: var(--muted); padding: 4px 10px; border-radius: 12px; min-width: 58px; }
   .tab.on { color: var(--plum); } .tab.on .ic { color: var(--honey-d); }
+  :root[data-theme="night"] .tab.on { color: var(--ink); } :root[data-theme="night"] .tab.on .ic { color: var(--honey); }
   .tab-add { width: 54px; height: 54px; border-radius: 18px; background: var(--honey); color: var(--plum); display: grid; place-items: center; box-shadow: 0 6px 18px rgba(245,165,36,.5); margin-top: -22px; }
   .tab-add .ic { width: 26px; height: 26px; stroke-width: 2.6; }
   h1 { font-size: 24px; }
