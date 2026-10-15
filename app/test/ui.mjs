@@ -133,6 +133,16 @@ async function run(label, vp, isMobile) {
   await page.keyboard.press('Alt+ArrowDown');
   await page.keyboard.press('Alt+ArrowLeft');
   ok(`${label}: Alt + arrows move a focused block by keyboard`, JSON.stringify(await vio()) === JSON.stringify({ days: '4', start: 8 * 60 + 15 }), JSON.stringify(await vio()));
+  await page.keyboard.press('Alt+Shift+ArrowUp');
+  const vlen = () => page.evaluate(() => window.__bzs.M.activeKid(window.__bzs.S.h).routines.find((x) => x.title === 'Violin' && !x.until).dur);
+  ok(`${label}: Alt + Shift + arrows change a focused block's length`, (await vlen()) === 8 * 60 - 15, await vlen());
+  if (!isMobile) {   /* drag the bottom edge up an hour */
+    const gb = await page.locator('.wb', { hasText: 'Violin' }).first().locator('.wb-grip').boundingBox();
+    await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down();
+    await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2 - 54, { steps: 8 }); await page.mouse.up();
+    ok(`${label}: dragging the bottom edge makes a block shorter`, (await vlen()) === 7 * 60 - 15, await vlen());
+    ok(`${label}: and does not move it or open the editor`, JSON.stringify(await vio()) === JSON.stringify({ days: '4', start: 8 * 60 + 15 }) && !(await page.locator('form[data-form=routine]').count()));
+  }
   await noOverflow('week'); await shot('3-week');
 
   // board: keyboard move and mouse drag

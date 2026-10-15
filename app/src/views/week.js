@@ -8,6 +8,7 @@ import { esc, icon } from '../ui.js';
 import { iconOf } from '../icons.js';
 
 const FROM = 7 * 60, TO = 22 * 60, PX = 0.9;   // px per minute
+export const WEEK_PX = PX;
 
 export function week(c) {
   const { h, kid, today: t, now, S } = c;
@@ -46,8 +47,8 @@ export function week(c) {
             if (bottom <= 0 || top >= (TO - FROM) * PX) return '';
             const st = status(h, kid, b, d, t, now).s, x = cat(b.r.cat);
             return `<button class="wb st-${st} ${cl.has(b.r.id) ? 'clash' : ''} ${bottom - top < 30 ? 'tiny' : ''}" style="top:${top}px;height:${Math.max(18, bottom - top - 2)}px;--c:${x.color};--s:${x.soft}"
-              data-act="editRoutine" data-id="${b.r.id}" data-date="${d}" data-start="${b.start}" title="${esc(b.r.title)} · ${clock(b.start)}–${clock(b.start + b.dur)}${cl.has(b.r.id) ? ' · clashes with another block' : ''} · drag to move">
-              <b>${iconOf(b.r)} ${esc(b.r.title)}</b><small>${clock(b.start)} · ${dur(b.dur)}</small>${b.r.anchor ? icon('lock', 'wb-lock') : ''}</button>`;
+              data-act="editRoutine" data-id="${b.r.id}" data-date="${d}" data-start="${b.start}" data-dur="${b.dur}" title="${esc(b.r.title)} · ${clock(b.start)}–${clock(b.start + b.dur)}${cl.has(b.r.id) ? ' · clashes with another block' : ''} · drag to move, drag the bottom edge to make it longer or shorter">
+              <b>${iconOf(b.r)} ${esc(b.r.title)}</b><small>${clock(b.start)} · ${dur(b.dur)}</small>${b.r.anchor ? icon('lock', 'wb-lock') : ''}${b.r.anchor && !S.grown ? '' : '<span class="wb-grip" aria-hidden="true"></span>'}</button>`;
           }).join('')}
           ${d === t && now > FROM && now < TO ? `<div class="wk-now" style="top:${nowTop}px"></div>` : ''}
         </div>

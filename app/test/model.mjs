@@ -148,6 +148,15 @@ const T = '2026-09-23'; // Wednesday
   const late = M.addRoutine(k, { title: 'Late', cat: 'play', days: [4], start: 20 * 60, dur: 120 }, T);
   M.moveRoutine(k, late.id, { from: addDays(T, 1), to: addDays(T, 1), start: 23 * 60 }, T);
   ok('a dragged plan never runs past midnight', late.start + late.dur <= 24 * 60, late.start);
+  /* dragging the bottom edge: a new length, same rules */
+  M.moveRoutine(k, once.id, { from: once.date, to: once.date, start: once.start, dur: 52 }, T);
+  ok('dragging the bottom edge sets a new length, in 15-minute steps', once.dur === 45 && once.start === 11 * 60, once.dur);
+  M.moveRoutine(k, once.id, { from: once.date, to: once.date, start: once.start, dur: 2 }, T);
+  ok('a block is never shorter than 15 minutes', once.dur === 15);
+  M.moveRoutine(k, once.id, { from: once.date, to: once.date, start: once.start, dur: 20 * 60 }, T);
+  ok('or longer than ten hours', once.dur === 10 * 60);
+  const sized = M.moveRoutine(k, moved.id, { from: addDays(T, 7), to: addDays(T, 7), start: moved.start, dur: 90 }, addDays(T, 7));
+  ok('a longer plan with history is retired and replaced too', sized && sized.id !== moved.id && sized.dur === 90 && moved.dur === 60);
 }
 
 if (fail) { console.log(`model: ${fail} of ${n} FAILED`); process.exit(1); }

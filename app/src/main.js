@@ -35,7 +35,7 @@ import { parse } from './parse.js';
 import { demoHousehold, starterWeek } from './demo.js';
 import { today as vToday } from './views/today.js';
 import { board as vBoard, COLS } from './views/board.js';
-import { week as vWeek, weekSlotTime } from './views/week.js';
+import { week as vWeek, weekSlotTime, WEEK_PX } from './views/week.js';
 import { goals as vGoals, GOAL_TEMPLATES } from './views/goals.js';
 import { hive as vHive } from './views/hive.js';
 import { grown as vGrown, gate } from './views/grown.js';
@@ -563,23 +563,25 @@ document.addEventListener('pointercancel', endDrag);
    short press — and the same rule as the editor (M.moveRoutine). A grown-up's
    fixed time stays where it is for a child; Undo is always one tap away. */
 const wdrag = { suppress: false };
-function moveBlock(k, id, from, to, start) {
+function moveBlock(k, id, from, to, start, length) {
   const r = k.routines.find((x) => x.id === id);
   if (!r) return;
   if (r.anchor && !S.grown) { toast('🔒 A grown-up set this one — it stays where it is.'); return; }
   const before = JSON.stringify(k.routines), c = ctx();
-  const moved = M.moveRoutine(k, id, { from, to, start }, c.today);
+  const moved = M.moveRoutine(k, id, { from, to, start, dur: length }, c.today);
   if (!moved) { if (to < c.today) toast('That day has passed — plans move forward only.'); return; }
   save(); render();
-  toast(`${r.title} → ${moved.date ? parseYmd(moved.date).toLocaleDateString(undefined, { weekday: 'short' }) : 'every ' + parseYmd(to).toLocaleDateString(undefined, { weekday: 'long' })} at ${clock(moved.start)}`,
+  toast(length != null ? `${r.title} now ${clock(moved.start)}–${clock(moved.start + moved.dur)} (${dur(moved.dur)})` : `${r.title} → ${moved.date ? parseYmd(moved.date).toLocaleDateString(undefined, { weekday: 'short' }) : 'every ' + parseYmd(to).toLocaleDateString(undefined, { weekday: 'long' })} at ${clock(moved.start)}`,
     () => { k.routines = JSON.parse(before); save(); render(); });
 }
 document.addEventListener('pointerdown', (e) => {
   const b = e.target.closest('.wb');
   if (!b || e.button > 0) return;
   const col = b.closest('.wk-col'), r = b.getBoundingClientRect();
-  Object.assign(wdrag, { b, col, id: b.dataset.id, from: b.dataset.date, x: e.clientX, y: e.clientY, gy: e.clientY - r.top, on: false, pending: true, suppress: false, type: e.pointerType });
-  if (e.pointerType !== 'mouse') wdrag.timer = setTimeout(() => { if (wdrag.pending) startWeekDrag(); }, 230);
+  Object.assign(wdrag, { b, col, id: b.dataset.id, from: b.dataset.date, x: e.clientX, y: e.clientY, gy: e.clientY - r.top, on: false, pending: true, suppress: false, type: e.pointerType,
+    size: !!e.target.closest('.wb-grip'), h0: r.height, start0: +b.dataset.start, dur0: +b.dataset.dur });
+  if (wdrag.size) e.preventDefault();   // the bottom edge resizes at once, for a finger too
+  if (e.pointerType !== 'mouse' && !wdrag.size) wdrag.timer = setTimeout(() => { if (wdrag.pending) startWeekDrag(); }, 230);
 });
 function startWeekDrag() {
   wdrag.on = true; wdrag.suppress = true;
@@ -587,6 +589,7 @@ function startWeekDrag() {
   wdrag.tip = document.createElement('div'); wdrag.tip.className = 'wb-tip'; document.body.appendChild(wdrag.tip);
   navigator.vibrate?.(8);
 }
+const sizeOf = (y) => Math.max(15, Math.min(10 * 60, 24 * 60 - wdrag.start0, Math.round((wdrag.dur0 + (y - wdrag.y) / WEEK_PX) / 15) * 15));
 function weekTarget(x, y) {
   const col = document.elementFromPoint(x, y)?.closest('.wk-col') || wdrag.col;
   const top = col.getBoundingClientRect().top;
@@ -596,9 +599,16 @@ document.addEventListener('pointermove', (e) => {
   if (!wdrag.pending) return;
   const dist = Math.hypot(e.clientX - wdrag.x, e.clientY - wdrag.y);
   if (!wdrag.on) {
-    if (wdrag.type === 'mouse' && dist > 6) startWeekDrag();
+    if ((wdrag.type === 'mouse' || wdrag.size) && dist > 6) startWeekDrag();
     else if (wdrag.type !== 'mouse' && dist > 10) { clearTimeout(wdrag.timer); wdrag.pending = false; }
     if (!wdrag.on) return;
+  }
+  if (wdrag.size) {   /* the bottom edge: a new length, in 15-minute steps */
+    const len = sizeOf(e.clientY);
+    wdrag.b.style.height = `${Math.max(18, len * WEEK_PX - 2)}px`;
+    wdrag.tip.textContent = `until ${clock(wdrag.start0 + len)} · ${dur(len)}`;
+    wdrag.tip.style.transform = `translate(${e.clientX + 14}px, ${e.clientY - 34}px)`;
+    return;
   }
   const t = weekTarget(e.clientX, e.clientY);
   const cr = wdrag.col.getBoundingClientRect(), tr = t.col.getBoundingClientRect();
@@ -615,7 +625,8 @@ function endWeekDrag(e) {
   if (!wdrag.on) return;
   wdrag.on = false;
   const t = weekTarget(e.clientX, e.clientY);
-  wdrag.b.classList.remove('lifted'); wdrag.b.style.transform = ''; wdrag.tip.remove();
+  wdrag.b.classList.remove('lifted'); wdrag.b.style.transform = ''; wdrag.b.style.height = ''; wdrag.tip.remove();
+  if (wdrag.size) { if (e.type === 'pointerup') moveBlock(M.activeKid(S.h), wdrag.id, wdrag.from, wdrag.from, wdrag.start0, sizeOf(e.clientY)); setTimeout(() => (wdrag.suppress = false), 50); return; }
   document.querySelectorAll('.wk-col.over').forEach((c) => c.classList.remove('over'));
   if (e.type === 'pointerup') moveBlock(M.activeKid(S.h), wdrag.id, wdrag.from, t.date, t.start);
   setTimeout(() => (wdrag.suppress = false), 50);
@@ -634,15 +645,17 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); return moveCard(card.dataset.card, e.key === 'ArrowRight' ? 1 : -1, card); }
     if (e.key === 'Enter') { e.preventDefault(); return ACT.editTask({ id: card.dataset.card }); }
   }
-  /* keyboard: a focused week block moves with Alt + arrows (15 minutes / a day) */
+  /* keyboard: a focused week block moves with Alt + arrows (15 minutes / a day); Alt + Shift + Up / Down changes its length */
   const wb = document.activeElement?.closest?.('.wb');
   if (wb && !S.modal && e.altKey && /^Arrow/.test(e.key)) {
     e.preventDefault();
     const k = M.activeKid(S.h), r = k.routines.find((x) => x.id === wb.dataset.id);
     if (!r) return;
     const from = wb.dataset.date, step = { ArrowUp: [0, -15], ArrowDown: [0, 15], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
-    const start = +wb.dataset.start + step[1], to = addDays(from, step[0]);
-    moveBlock(k, r.id, from, to, start);
+    /* Shift too: Up / Down make it 15 minutes shorter / longer instead of moving it */
+    const sizing = e.shiftKey && step[1];
+    const start = +wb.dataset.start + (sizing ? 0 : step[1]), to = addDays(from, sizing ? 0 : step[0]);
+    moveBlock(k, r.id, from, to, start, sizing ? +wb.dataset.dur + step[1] : undefined);
     /* render() is synchronous: put focus straight back on the moved block (its id may be new if the plan was retired and replaced) */
     const k2 = M.activeKid(S.h), now2 = k2.routines.find((x) => !x.until && x.title === r.title && (x.date ? x.date === to : x.days.includes((parseYmd(to).getDay() + 6) % 7))) || r;
     (document.querySelector(`.wb[data-id="${now2.id}"][data-date="${to}"]`) || document.querySelector(`.wb[data-id="${now2.id}"]`))?.focus();

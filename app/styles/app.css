@@ -345,6 +345,10 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
 .wk-col { position: relative; height: var(--h); cursor: copy; }
 .wk-line { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); pointer-events: none; }
 .wb { position: absolute; left: 4px; right: 4px; border-radius: calc(8px * var(--rk)); background: var(--s); box-shadow: inset 3px 0 0 var(--c); padding: 4px 6px 4px 8px; text-align: left; overflow: hidden; font-size: 12px; line-height: 1.25; cursor: pointer; display: flex; flex-direction: column; transition: transform .1s, box-shadow .1s; }
+.wb-grip { position: absolute; left: 0; right: 0; bottom: 0; height: 9px; cursor: ns-resize; touch-action: none; }
+.wb-grip::after { content: ''; position: absolute; left: 50%; bottom: 3px; width: 22px; height: 3px; margin-left: -11px; border-radius: 3px; background: var(--c); opacity: 0; transition: opacity .15s; }
+.wb:hover .wb-grip::after, .wb:focus-visible .wb-grip::after, .wb.lifted .wb-grip::after { opacity: .7; }
+@media (hover: none) { .wb-grip { height: 14px; } .wb-grip::after { opacity: .45; } }
 .wb.lifted { z-index: 20; opacity: .92; pointer-events: none; box-shadow: inset 3px 0 0 var(--c), var(--sh-2); cursor: grabbing; transition: none; touch-action: none; }
 .wk-col.over { background: color-mix(in srgb, var(--honey) 8%, transparent); }
 .wb-tip { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; background: var(--plum); color: #fff; font: 800 12px/1 var(--f); padding: 6px 9px; border-radius: 999px; box-shadow: var(--sh-2); }

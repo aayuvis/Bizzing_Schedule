@@ -63,24 +63,27 @@ export function addRoutine(kid, r, today = ymd()) {
    moves to that date. Exactly the editor's rule: a plan that already has history
    is retired and replaced, so last week's numbers stay what they were.
    Returns the moved plan, or null when nothing changed or it may not move. */
-export function moveRoutine(kid, id, { from, to, start }, today = ymd()) {
+export function moveRoutine(kid, id, { from, to, start, dur }, today = ymd()) {
   const r = kid.routines.find((x) => x.id === id);
   if (!r || to < today) return null;                         // the past is not rearranged
-  start = Math.max(0, Math.min(24 * 60 - r.dur, Math.round(start / 15) * 15));
+  /* a new length (dragging the bottom edge): 15-minute steps, 15 minutes to 10 hours */
+  dur = dur == null ? r.dur : Math.max(15, Math.min(10 * 60, Math.round(dur / 15) * 15));
+  start = Math.max(0, Math.min(24 * 60 - dur, Math.round(start / 15) * 15));
+  dur = Math.min(dur, 24 * 60 - start);
   if (r.date) {
-    if (r.date === to && r.start === start) return null;
+    if (r.date === to && r.start === start && r.dur === dur) return null;
     if (r.date < today) return null;
-    Object.assign(r, { date: to, start });
+    Object.assign(r, { date: to, start, dur });
     return r;
   }
   const a = dow(from), b = dow(to);
   const days = a === b || r.days.includes(b) ? r.days : [...r.days.filter((d) => d !== a), b].sort();
-  if (r.start === start && String(days) === String(r.days)) return null;
+  if (r.start === start && r.dur === dur && String(days) === String(r.days)) return null;
   if (r.from < today) {
     removeRoutine(kid, r.id, today);
-    return addRoutine(kid, { ...r, days, start, from: today }, today) || kid.routines.at(-1);
+    return addRoutine(kid, { ...r, days, start, dur, from: today }, today) || kid.routines.at(-1);
   }
-  Object.assign(r, { days, start });
+  Object.assign(r, { days, start, dur });
   return r;
 }
 
