@@ -50,6 +50,27 @@ JOBS = {
     'huddle':        (STYLE + " A cosy round woven nest on a branch holding several small eggs of different colours, a warm blanket, soft afternoon light, "
                       "a teapot and cups on a little stump beside it. Plain soft cream background around it. Centred spot illustration.", '4:3'),
 }
+# The other two worlds paint the same four times of day in their own places.
+MARIGOLD = (" A wide panoramic banner landscape: a sunlit Indian village courtyard garden with terracotta pots of marigolds, "
+            "strings of orange and yellow marigold garlands between neem trees, a whitewashed low house with an arched doorway and "
+            "a deep indigo painted door at the right, a brass water pot on a step, distant soft hills. No temples, no shrines, no "
+            "religious objects or symbols. On the left side of the picture there is simply open sky above bare sandy ground, "
+            "nothing else, continuous with the rest of the scene. The whole picture is lit by the same light. "
+            "The painting runs edge to edge: no frame, no border, no panels.")
+LAGOON = (" A wide panoramic banner landscape: a calm tropical lagoon with clear teal water, a curved sandy shore, a little "
+          "wooden boathouse on stilts at the right, two small rowing boats, swaying palms, smooth pebbles, distant soft islands. "
+          "The LEFT HALF is calmer — mostly open sky and still water with little detail — so white text can sit over it. "
+          "No frame, no border, full-bleed.")
+TIMES = {
+    'morning': " Early morning: pale peach and butter-yellow sunrise, dew, long soft shadows.",
+    'day':     " Bright midday: clear soft-blue sky, puffy clouds, fresh colours.",
+    'evening': " Golden hour evening: warm amber and rose sky, glowing light, small lanterns just lit.",
+    'night':   " Night: deep indigo sky full of stars and a crescent moon, fireflies, windows glowing warm, sleepy and peaceful.",
+}
+for _w, _scene in (('marigold', MARIGOLD), ('lagoon', LAGOON)):
+    for _t, _light in TIMES.items():
+        JOBS[f'{_w}-sky-{_t}'] = (STYLE + _scene + _light + " Muted, gentle palette.", '21:9')
+
 BADGE = (STYLE + " A single round enamel-pin style MEDALLION badge, centred, filling most of the square, with a bold honey-gold rim and a "
          "rich coloured inner field, on a plain pure white background. Inside the medallion: ")
 BADGES = {

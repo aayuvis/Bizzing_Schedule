@@ -40,7 +40,7 @@ for f in sorted(os.listdir(RAW)):
         im = badge(im)
     else:
         im = im.convert('RGB')
-        w = 1600 if n.startswith('sky-') else 900 if n == 'splash' else 720
+        w = 1600 if 'sky-' in n else 900 if n == 'splash' else 720
         im = im.resize((w, round(w * im.height / im.width)), Image.LANCZOS)
     p = os.path.join(OUT, n + '.webp')
     im.save(p, 'WEBP', quality=80, method=6)

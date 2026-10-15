@@ -197,15 +197,19 @@ async function run(label, vp, isMobile) {
     }
     return out.slice(0, 5);
   });
+  const looks = {};
   for (const w of ['meadow', 'marigold', 'lagoon']) for (const night of [true, false]) {
     await page.click(`.top .themes button[data-v="${w}"]`);
     if ((await page.getAttribute('html', 'data-theme') === 'night') !== night) await page.click('.top .themes button[data-act=night]');
     await page.waitForTimeout(350);
     const poor = await poorText();
+    if (!night) looks[w] = await page.evaluate(() => { const card = document.querySelector('.card'); return [getComputedStyle(document.querySelector('h1')).fontFamily.split(',')[0], getComputedStyle(card).borderTopLeftRadius, getComputedStyle(card).boxShadow, getComputedStyle(document.querySelector('.hero')).backgroundImage.split('/').pop()].join(' | '); });
     ok(`${label}: every word on Today is readable in ${w}${night ? ' at night' : ''}`, !poor.length, poor.join(' | '));
     if (night) { await noOverflow(`today in ${w} at night`); }
     await shot(`9-${w}${night ? '-night' : ''}`);
   }
+  const L = Object.values(looks).map((x) => x.split(' | '));
+  ok(`${label}: each world has its own typeface, corners, shadow and painting`, [0, 1, 2, 3].every((i) => new Set(L.map((x) => x[i])).size === 3), JSON.stringify(looks));
   await page.click('.top .themes button[data-v="meadow"]');
 
   // focus sprint opens and stops

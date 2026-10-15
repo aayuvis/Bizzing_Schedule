@@ -10,6 +10,9 @@ import { iconOf } from '../icons.js';
 const GREET = { morning: 'Good morning', day: 'Good afternoon', evening: 'Good evening', night: 'Sleep well' };
 const QUICK = [['screen', 15, '📺 +15m TV'], ['play', 30, '🧩 +30m play'], ['move', 30, '⚽ +30m outside'], ['study', 20, '📚 +20m reading'], ['family', 20, '🏡 +20m helping']];
 
+/* Each world paints its own banner for the four times of day: Meadow keeps the original hive. */
+const skyArt = (pod) => { const w = document.documentElement.dataset.world; return w && w !== 'meadow' ? `${w}-sky-${pod}` : `sky-${pod}`; };
+
 export function today(c) {
   const { h, kid, today: t, now, S } = c;
   const bl = blocksFor(kid, t).map((b) => ({ ...b, st: status(h, kid, b, t, t, now) }));
@@ -23,7 +26,7 @@ export function today(c) {
   const cells = bl.filter((b) => b.st.s in { done: 1, part: 1 }).length;
 
   return `
-  <section class="hero sky-${pod}" style="background-image:url(./art/sky-${pod}.webp)">
+  <section class="hero sky-${pod}" style="background-image:url(./art/${skyArt(pod)}.webp)">
     <div class="hero-in">
       <div class="hero-txt">
         <p class="eyebrow">${longDate(t)}</p>
