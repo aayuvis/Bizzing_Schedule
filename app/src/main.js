@@ -17,7 +17,7 @@ import { Store } from './store.js';
 import { ymd, nowMin, hm, addDays, parseYmd, clock } from './time.js';
 import { CATS } from './cats.js';
 import * as M from './model.js';
-import { award, BADGES } from './badges.js';
+import { award, BADGES, canWear, AV_NAME } from './badges.js';
 import { parse } from './parse.js';
 import { demoHousehold, starterWeek } from './demo.js';
 import { today as vToday } from './views/today.js';
@@ -288,6 +288,11 @@ const ACT = {
   /* focus */
   focus: (d) => { S.modal = { type: 'focus', goal: d.goal || null }; render(); },
   focusGo: (d) => { S.modal = { ...S.modal, running: true, mins: +d.v, end: Date.now() + +d.v * 60000, start: Date.now() }; render(); },
+  wearAv: (d) => {
+    const c = ctx();
+    if (canWear(c.kid, d.v)) { c.kid.avatar = d.v; save(); toast(`${AV_NAME[d.v]} is with you now`); }
+    S.modal = null; render();
+  },
   focusStop: () => {
     const m = S.modal, mins = Math.floor((Date.now() - m.start) / 60000);
     if (mins >= 3) { M.addFocus(M.activeKid(S.h), mins, m.goal, null, ctx().today); save(); S.modal = { ...m, running: false, finished: true, mins }; }
@@ -401,14 +406,14 @@ const FORM = {
     save(); S.modal = null; render(); toast(editing ? 'Saved' : `🎯 New goal: ${data.title}`);
   },
   kid: (v) => {
-    if (v.id) Object.assign(S.h.kids.find((k) => k.id === v.id), { name: v.name.trim(), band: v.band, avatar: v.avatar });
-    else { const k = M.newKid(v); if (v.starter) starterWeek(k, ctx().today); S.h.kids.push(k); }
+    if (v.id) { const k = S.h.kids.find((x) => x.id === v.id); Object.assign(k, { name: v.name.trim(), band: v.band, avatar: canWear(k, v.avatar) ? v.avatar : k.avatar }); }
+    else { const k = M.newKid({ ...v, avatar: canWear(null, v.avatar) ? v.avatar : 'bizzy' }); if (v.starter) starterWeek(k, ctx().today); S.h.kids.push(k); }
     save(); S.modal = null; render();
   },
   setup: (v) => {
     const h = M.newHousehold();
     h.parent = { pin: v.pin, name: (v.from || '').trim() };
-    const k = M.newKid(v); if (v.starter) starterWeek(k, ctx().today);
+    const k = M.newKid({ ...v, avatar: canWear(null, v.avatar) ? v.avatar : 'bizzy' }); if (v.starter) starterWeek(k, ctx().today);
     h.kids.push(k); h.active = k.id;
     S.h = h; S.setup = false; save(); render(); scrollTo(0, 0);
     toast(`Welcome, ${k.name}! 🐝 Tap ✓ when you finish something.`);

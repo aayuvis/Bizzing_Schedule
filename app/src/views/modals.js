@@ -5,7 +5,8 @@ import { CATS, CAT_IDS, APPS, cat } from '../cats.js';
 import { blocksFor, status, KR_SOURCES, BANDS } from '../model.js';
 import { parse } from '../parse.js';
 import { GOAL_TEMPLATES } from './goals.js';
-import { esc, icon, avatar, AVATARS, ring, plural } from '../ui.js';
+import { esc, icon, avatar, ring, plural } from '../ui.js';
+import { avatarChoices, AV_NAME } from '../badges.js';
 import { iconOf, iconField, suggestIcon } from '../icons.js';
 
 export function modal(c) {
@@ -169,7 +170,7 @@ function focus(c, m) {
   const left = Math.max(0, m.end - Date.now()), total = m.mins * 60000;
   const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
   return `<div class="fs-run"><p class="eyebrow">${g ? `${g.emoji} ${esc(g.title)}` : 'Focus sprint'}</p>
-    <div class="fs-ring" id="fs-ring">${ring(1 - left / total, 240, 14, 'var(--honey)')}<div class="fs-time" id="fs-time">${mm}:${String(ss).padStart(2, '0')}</div><img class="fs-bee" src="./avatars/bizzy.png" alt=""></div>
+    <div class="fs-ring" id="fs-ring">${ring(1 - left / total, 240, 14, 'var(--honey)')}<div class="fs-time" id="fs-time">${mm}:${String(ss).padStart(2, '0')}</div><img class="fs-bee" src="./avatars/${esc(c.kid.avatar || 'bizzy')}.png" alt=""></div>
     <div class="row center"><button class="btn ghost light" data-act="focusStop">Stop early</button></div></div>`;
 }
 
@@ -180,7 +181,17 @@ function kudosOpen(c, m) {
 }
 
 function badge(c, m) {
-  return `<div class="badge-cel"><img src="./art/${m.b.art}.webp" alt=""><p class="eyebrow">New medal</p><h2>${esc(m.b.name)}</h2><p>${esc(m.b.desc)}</p><button class="btn" data-act="close">Brilliant!</button></div>`;
+  return `<div class="badge-cel"><img src="./art/${m.b.art}.webp" alt=""><p class="eyebrow">New medal</p><h2>${esc(m.b.name)}</h2><p>${esc(m.b.desc)}</p>
+    ${m.b.av ? `<div class="cel-comp">${avatar(m.b.av, 'lg')}<p><b>${esc(AV_NAME[m.b.av])}</b> joins you. Every medal brings a companion.</p></div>
+    <div class="row center"><button class="btn ghost" data-act="close">Not now</button><button class="btn" data-act="wearAv" data-v="${m.b.av}">Wear ${esc(AV_NAME[m.b.av])}</button></div>`
+    : '<button class="btn" data-act="close">Brilliant!</button>'}</div>`;
+}
+
+/* Free avatars to pick; the rest show greyed with the medal that brings them. */
+function avPick(kid, cur, freeOnly = false) {
+  return avatarChoices(kid).filter((a) => a.ok || !freeOnly).map((a) => a.ok
+    ? `<label title="${esc(a.name)}"><input type="radio" name="avatar" value="${a.id}" ${cur === a.id ? 'checked' : ''}>${avatar(a.id)}</label>`
+    : `<label class="locked" title="${esc(a.name)}: earn the ${esc(a.medal)} medal"><input type="radio" name="avatar" value="${a.id}" disabled>${avatar(a.id)}</label>`).join('');
 }
 
 function kid(c, m) {
@@ -189,7 +200,7 @@ function kid(c, m) {
   <form data-form="kid" class="form"><input type="hidden" name="id" value="${m.id || ''}">
     <label class="fld"><span>First name</span><input name="name" value="${esc(k.name)}" required maxlength="20" autocomplete="off" autofocus></label>
     <div class="fld"><span>Age</span><div class="seg sm">${Object.entries(BANDS).map(([v, l]) => `<label><input type="radio" name="band" value="${v}" ${k.band === v ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div></div>
-    <div class="fld"><span>Avatar</span><div class="avpick">${AVATARS.map((a) => `<label><input type="radio" name="avatar" value="${a}" ${k.avatar === a ? 'checked' : ''}>${avatar(a)}</label>`).join('')}</div></div>
+    <div class="fld"><span>Avatar</span><div class="avpick">${avPick(m.id ? k : null, k.avatar)}</div><small class="muted">Greyed ones come with a medal. Earn the medal, and the avatar joins you.</small></div>
     ${m.id ? '' : `<label class="tog"><input type="checkbox" name="starter" checked><span>Start with a sensible week (school, homework, play, reading, bedtime) to rearrange</span></label>`}
     <footer class="sh-f">${m.id && c.h.kids.length > 1 ? `<button type="button" class="btn danger ghost" data-act="rmKid" data-id="${m.id}">Remove</button>` : '<span></span>'}<button class="btn">${m.id ? 'Save' : 'Add'}</button></footer>
   </form>`;
@@ -240,7 +251,7 @@ export function onboarding(S) {
       <label class="fld"><span>Your name, as the kids say it</span><input name="from" placeholder="Mum, Dad, Nani…" maxlength="24"></label>
       <label class="fld"><span>Child's first name</span><input name="name" required maxlength="20" autocomplete="off" autofocus></label>
       <div class="fld"><span>Age</span><div class="seg sm">${Object.entries(BANDS).map(([v, l], i) => `<label><input type="radio" name="band" value="${v}" ${i === 1 ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div></div>
-      <div class="fld"><span>Pick an avatar</span><div class="avpick">${AVATARS.slice(0, 14).map((a, i) => `<label><input type="radio" name="avatar" value="${a}" ${i === 0 ? 'checked' : ''}>${avatar(a)}</label>`).join('')}</div></div>
+      <div class="fld"><span>Pick an avatar</span><div class="avpick">${avPick(null, 'bizzy', true)}</div></div>
       <label class="fld"><span>A 4-digit PIN for the grown-ups' page</span><input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="••••"></label>
       <label class="tog"><input type="checkbox" name="starter" checked><span>Start with a sensible week to rearrange</span></label>
       <footer class="sh-f"><button type="button" class="btn ghost" data-act="setupBack">Back</button><button class="btn">Let's go 🐝</button></footer>

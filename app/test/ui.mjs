@@ -154,6 +154,7 @@ async function run(label, vp, isMobile) {
   await page.waitForTimeout(500);
   ok(`${label}: hive shows the comb and 12 medals`, (await page.locator('.badge').count()) === 12);
   ok(`${label}: some medals are earned`, (await page.locator('.badge.on').count()) > 0);
+  ok(`${label}: every medal shows the companion it brings`, (await page.locator('.badge .comp img').count()) === 12);
   await imgsOk('hive'); await noOverflow('hive'); await shot('6-hive');
 
   // grown-ups
@@ -205,9 +206,15 @@ async function run(label, vp, isMobile) {
   await page.waitForSelector('.focus-cta');
   await page.click('.focus-cta'); await page.click('.fs-n >> text=10');
   await page.waitForSelector('#fs-time');
+  ok(`${label}: the child's own avatar keeps them company in a sprint`, (await page.getAttribute('.fs-bee', 'src')) === `./avatars/${await page.evaluate(() => window.__bzs.S.h.kids[0].avatar)}.png`);
   await shot('8-focus');
   await page.keyboard.press('Escape');
   ok(`${label}: a sprint stopped in the first minute records nothing`, await page.evaluate(() => window.__bzs.S.h.kids[0].focus.length === 5));
+  // a medal's companion: celebrated once, worn with one tap
+  await page.evaluate(() => { const k = window.__bzs.S.h.kids[0]; k.badges.lantern = k.badges.lantern || '2026-01-01';
+    window.__bzs.S.modal = { type: 'badge', b: { id: 'lantern', av: 'samurai', art: 'badge-lantern', name: 'Laser Focus', desc: 'Finish 5 focus sprints.' } }; window.__bzs.render(); });
+  await page.click('.badge-cel button:has-text("Wear Samurai")');
+  ok(`${label}: wearing a medal's companion changes the avatar`, await page.evaluate(() => window.__bzs.S.h.kids[0].avatar === 'samurai'));
 
   ok(`${label}: no errors in the console`, errors.length === 0, errors.join('\n   '));
   await ctx.close();

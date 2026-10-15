@@ -1,7 +1,8 @@
 /* model.mjs — the numbers the app shows are the numbers the log supports. */
 import * as M from '../src/model.js';
 import { demoHousehold } from '../src/demo.js';
-import { badgeStates, award, BADGES } from '../src/badges.js';
+import { badgeStates, award, BADGES, avatarChoices, canWear, FREE_AVATARS } from '../src/badges.js';
+import { AVATARS } from '../src/ui.js';
 import { addDays, weekDays } from '../src/time.js';
 
 let fail = 0, n = 0;
@@ -114,6 +115,16 @@ const T = '2026-09-23'; // Wednesday
   ok('award is idempotent', award(h, a, T, 17 * 60).length === 0);
   const empty = M.newKid({ name: 'New' }); empty.created = T;
   ok('a brand-new child has earned nothing', badgeStates(M.newHousehold(), empty, T).every((b) => b.have < b.need));
+  /* companions: every medal brings one avatar; no coins, nothing random */
+  ok('every medal brings a different avatar, and every avatar is free or a medal\'s', new Set(BADGES.map((b) => b.av)).size === 12
+    && [...FREE_AVATARS, ...BADGES.map((b) => b.av)].sort().join() === [...AVATARS].sort().join());
+  ok('a child who does not exist yet may pick only the nine free ones', avatarChoices(null).filter((x) => x.ok).length === 9 && !canWear(null, 'samurai'));
+  const kid2 = M.newKid({ name: 'Zia' }); kid2.created = T;
+  ok('a new child cannot wear a medal\'s avatar', !canWear(kid2, 'samurai'));
+  kid2.badges.lantern = T;
+  ok('earning the medal opens its avatar', canWear(kid2, 'samurai') && !canWear(kid2, 'comet'));
+  const kid3 = M.newKid({ name: 'Ira', avatar: 'astro' });
+  ok('a child keeps the avatar they already wear', canWear(kid3, 'astro'));
   ok('cheer never shames', !/fail|bad|lazy|behind|missed/i.test(M.cheer(h, a, T, 17 * 60)));
 }
 

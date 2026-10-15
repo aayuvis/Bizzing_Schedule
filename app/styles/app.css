@@ -468,6 +468,11 @@ input[type=range] { accent-color: var(--honey); width: 100%; margin: 10px 0; }
 .avpick { display: flex; flex-wrap: wrap; gap: 6px; }
 .avpick input { display: none; } .avpick .av { width: 44px; height: 44px; cursor: pointer; border: 3px solid transparent; transition: transform .1s; }
 .avpick input:checked + .av { border-color: var(--honey); transform: scale(1.1); }
+.avpick .locked .av { filter: grayscale(1) opacity(.4); cursor: not-allowed; }
+.badge .comp { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.badge .comp .av { width: 22px; height: 22px; filter: grayscale(1) opacity(.5); } .badge .comp.on { color: var(--ink); font-weight: 600; } .badge .comp.on .av { filter: none; }
+.cel-comp { display: flex; flex-direction: column; align-items: center; gap: 6px; } .cel-comp p { margin: 0; }
+.bz-kid { margin-left: -12px; box-shadow: 0 0 0 2px var(--card); }
 .choice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
 .ch { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 8px; border-radius: 16px; font-weight: 800; background: var(--bg); transition: transform .1s; }
 .ch span { font-size: 30px; } .ch:hover { transform: translateY(-2px); }

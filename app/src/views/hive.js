@@ -5,8 +5,8 @@
 import { weekDays, DAY_SHORT, dur, shortDate, addDays, weekStart } from '../time.js';
 import { CATS, APPS, cat } from '../cats.js';
 import { blocksFor, status, weekStats, history } from '../model.js';
-import { badgeStates } from '../badges.js';
-import { esc, ring, donut, hexPath, pct, plural, icon } from '../ui.js';
+import { badgeStates, AV_NAME } from '../badges.js';
+import { esc, ring, donut, hexPath, pct, plural, icon, avatar } from '../ui.js';
 
 export function hive(c) {
   const { h, kid, today: t, now } = c;
@@ -63,7 +63,8 @@ export function hive(c) {
     <div class="card-h"><h2>Medals</h2><span class="muted small">${earned.length} of ${bs.length} earned · every one from real effort</span></div>
     <div class="badges">${bs.map((b) => `<div class="badge ${b.earned ? 'on' : ''}" title="${esc(b.desc)}">
       <img src="./art/${b.art}.webp" alt="" loading="lazy"><b>${esc(b.name)}</b>
-      ${b.earned ? `<small>earned ${shortDate(b.earned)}</small>` : `<div class="bar thin"><i style="width:${Math.round(b.have / b.need * 100)}%"></i></div><small>${b.have}/${b.need} · ${esc(b.desc)}</small>`}</div>`).join('')}</div>
+      ${b.earned ? `<small>earned ${shortDate(b.earned)}</small>` : `<div class="bar thin"><i style="width:${Math.round(b.have / b.need * 100)}%"></i></div><small>${b.have}/${b.need} · ${esc(b.desc)}</small>`}
+      <span class="comp ${b.earned ? 'on' : ''}">${avatar(b.av, 'xs')}${b.earned ? esc(AV_NAME[b.av]) : `brings ${esc(AV_NAME[b.av])}`}</span></div>`).join('')}</div>
   </div>
 
   ${kid.kudos.length ? `<div class="card">

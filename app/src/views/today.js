@@ -28,7 +28,7 @@ export function today(c) {
       <div class="hero-txt">
         <p class="eyebrow">${longDate(t)}</p>
         <h1>${GREET[pod]}, ${esc(kid.name)}</h1>
-        <p class="bizzy"><img src="./avatars/bizzy.png" alt="" class="bz-av"><span>${esc(cheer(h, kid, t, now))}</span></p>
+        <p class="bizzy"><img src="./avatars/bizzy.png" alt="" class="bz-av">${kid.avatar && kid.avatar !== 'bizzy' ? `<img src="./avatars/${esc(kid.avatar)}.png" alt="" class="bz-av bz-kid">` : ''}<span>${esc(cheer(h, kid, t, now))}</span></p>
       </div>
       <div class="hero-stats">
         <div class="hs">${ring(sc.pct ?? 0, 74, 9, 'var(--honey)', sc.planned ? `${Math.round((sc.pct || 0) * 100)}%` : '—')}<span>kept so far</span></div>
