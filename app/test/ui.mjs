@@ -113,6 +113,26 @@ async function run(label, vp, isMobile) {
   ok(`${label}: and is on both days next week`, (await page.locator('.wb', { hasText: 'Chess club' }).count()) === 2);
   await page.click('[data-act=weekNav][data-d="0"]');
   ok(`${label}: the clash it makes is outlined`, (await page.locator('.wb.clash').count()) > 0);
+  // week drag: pick a block up and drop it on another day, an hour later
+  const vio = () => page.evaluate(() => { const r = window.__bzs.M.activeKid(window.__bzs.S.h).routines.find((x) => x.title === 'Violin' && !x.until); return r && { days: r.days.join(), start: r.start }; });
+  if (!isMobile) {
+    const vb = await page.locator('.wb', { hasText: 'Violin' }).first().boundingBox();
+    const fri = await page.locator('.wk-col').nth(4).boundingBox();
+    await page.mouse.move(vb.x + vb.width / 2, vb.y + 10); await page.mouse.down();
+    await page.mouse.move(vb.x + vb.width / 2 - 20, vb.y + 20, { steps: 3 });
+    await page.mouse.move(fri.x + fri.width / 2, vb.y + 10 + 54, { steps: 8 });   // 54px = one hour at 0.9px a minute
+    await page.mouse.up();
+    const v = await vio();
+    ok(`${label}: dragging a week block moves it to the day and time it was dropped on`, v && v.days === '4' && v.start === 9 * 60, JSON.stringify(v));
+    ok(`${label}: a drag does not also open the editor`, !(await page.locator('form[data-form=routine]').count()));
+    await page.click('#toast button');   // Undo
+    ok(`${label}: Undo puts it back`, JSON.stringify(await vio()) === JSON.stringify({ days: '5', start: 8 * 60 }));
+  }
+  /* keyboard: Alt + arrows move the focused block 15 minutes or a day */
+  await page.locator('.wb', { hasText: 'Violin' }).first().focus();
+  await page.keyboard.press('Alt+ArrowDown');
+  await page.keyboard.press('Alt+ArrowLeft');
+  ok(`${label}: Alt + arrows move a focused block by keyboard`, JSON.stringify(await vio()) === JSON.stringify({ days: '4', start: 8 * 60 + 15 }), JSON.stringify(await vio()));
   await noOverflow('week'); await shot('3-week');
 
   // board: keyboard move and mouse drag

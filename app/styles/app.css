@@ -345,6 +345,9 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
 .wk-col { position: relative; height: var(--h); cursor: copy; }
 .wk-line { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); pointer-events: none; }
 .wb { position: absolute; left: 4px; right: 4px; border-radius: calc(8px * var(--rk)); background: var(--s); box-shadow: inset 3px 0 0 var(--c); padding: 4px 6px 4px 8px; text-align: left; overflow: hidden; font-size: 12px; line-height: 1.25; cursor: pointer; display: flex; flex-direction: column; transition: transform .1s, box-shadow .1s; }
+.wb.lifted { z-index: 20; opacity: .92; pointer-events: none; box-shadow: inset 3px 0 0 var(--c), var(--sh-2); cursor: grabbing; transition: none; touch-action: none; }
+.wk-col.over { background: color-mix(in srgb, var(--honey) 8%, transparent); }
+.wb-tip { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; background: var(--plum); color: #fff; font: 800 12px/1 var(--f); padding: 6px 9px; border-radius: 999px; box-shadow: var(--sh-2); }
 .wb:hover { z-index: 3; transform: scale(1.02); box-shadow: inset 3px 0 0 var(--c), 0 6px 16px rgba(0,0,0,.12); }
 .wb b { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .wb small { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
 .wb.tiny { flex-direction: row; gap: 6px; align-items: center; } .wb.tiny small { display: none; }

@@ -128,5 +128,27 @@ const T = '2026-09-23'; // Wednesday
   ok('cheer never shames', !/fail|bad|lazy|behind|missed/i.test(M.cheer(h, a, T, 17 * 60)));
 }
 
+/* 8. dragging a block on the Week: moves forward only, keeps last week's numbers */
+{
+  const h = M.newHousehold(), k = M.newKid({ name: 'Noor' }); h.kids.push(k);
+  const fresh = M.addRoutine(k, { title: 'Chess', cat: 'create', days: [2], start: 17 * 60, dur: 45 }, T);   // Wednesday, added today
+  M.moveRoutine(k, fresh.id, { from: T, to: addDays(T, 1), start: 18 * 60 + 7 }, T);
+  ok('a new plan dragged to Thursday 6pm moves in place, snapped to 15 minutes', k.routines.length === 1 && fresh.days.join() === '3' && fresh.start === 18 * 60, JSON.stringify(fresh));
+  const old = M.addRoutine(k, { title: 'Swim', cat: 'move', days: [0, 2], start: 16 * 60, dur: 60 }, '2026-09-01');
+  const lastWeek = addDays(T, -7);
+  M.mark(k, old.id, lastWeek, 'done');
+  const moved = M.moveRoutine(k, old.id, { from: T, to: T, start: 17 * 60 }, T);
+  ok('a plan with history is retired and replaced, not rewritten', old.until === addDays(T, -1) && moved && moved.id !== old.id && moved.start === 17 * 60 && moved.days.join() === '0,2');
+  ok('last week still shows the old time, kept', M.blocksFor(k, lastWeek).some((b) => b.r.id === old.id && b.start === 16 * 60) && M.status(h, k, M.blocksFor(k, lastWeek).find((b) => b.r.id === old.id), lastWeek, T, 20 * 60).s === 'done');
+  ok('the past is not rearranged', M.moveRoutine(k, moved.id, { from: T, to: addDays(T, -1), start: 9 * 60 }, T) === null);
+  const once = M.addRoutine(k, { title: 'Dentist', cat: 'rest', date: addDays(T, 2), start: 10 * 60, dur: 30 }, T);
+  M.moveRoutine(k, once.id, { from: once.date, to: addDays(T, 3), start: 11 * 60 }, T);
+  ok('a one-off moves to the new date and time', once.date === addDays(T, 3) && once.start === 11 * 60);
+  ok('a drop where nothing changes changes nothing', M.moveRoutine(k, once.id, { from: once.date, to: once.date, start: 11 * 60 }, T) === null);
+  const late = M.addRoutine(k, { title: 'Late', cat: 'play', days: [4], start: 20 * 60, dur: 120 }, T);
+  M.moveRoutine(k, late.id, { from: addDays(T, 1), to: addDays(T, 1), start: 23 * 60 }, T);
+  ok('a dragged plan never runs past midnight', late.start + late.dur <= 24 * 60, late.start);
+}
+
 if (fail) { console.log(`model: ${fail} of ${n} FAILED`); process.exit(1); }
 console.log(`model: all ${n} passed`);

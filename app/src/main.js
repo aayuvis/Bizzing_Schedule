@@ -27,7 +27,7 @@ import '@fontsource/figtree/latin-700.css';
 import '@fontsource/figtree/latin-800.css';
 import '../styles/app.css';
 import { Store } from './store.js';
-import { ymd, nowMin, hm, addDays, parseYmd, clock } from './time.js';
+import { ymd, nowMin, hm, addDays, parseYmd, clock, dur } from './time.js';
 import { CATS } from './cats.js';
 import * as M from './model.js';
 import { award, BADGES, canWear, AV_NAME } from './badges.js';
@@ -467,6 +467,7 @@ document.addEventListener('click', (e) => {
      label would stop toggling its radio. */
   if (el.dataset.act === 'closeBg' && e.target !== el) return;
   if (el.closest('.kcard') && drag.suppress) return;
+  if (el.closest('.wb') && wdrag.suppress) return;
   const fn = ACT[el.dataset.act];
   if (fn) { e.preventDefault(); fn(el.dataset, el, e); }
 });
@@ -557,6 +558,71 @@ function endDrag(e) {
 document.addEventListener('pointerup', endDrag);
 document.addEventListener('pointercancel', endDrag);
 
+/* Week drag: pick a block up and drop it at a new time (15-minute steps) or on
+   another day. Same feel as the board — a mouse after 6px, a finger after a
+   short press — and the same rule as the editor (M.moveRoutine). A grown-up's
+   fixed time stays where it is for a child; Undo is always one tap away. */
+const wdrag = { suppress: false };
+function moveBlock(k, id, from, to, start) {
+  const r = k.routines.find((x) => x.id === id);
+  if (!r) return;
+  if (r.anchor && !S.grown) { toast('🔒 A grown-up set this one — it stays where it is.'); return; }
+  const before = JSON.stringify(k.routines), c = ctx();
+  const moved = M.moveRoutine(k, id, { from, to, start }, c.today);
+  if (!moved) { if (to < c.today) toast('That day has passed — plans move forward only.'); return; }
+  save(); render();
+  toast(`${r.title} → ${moved.date ? parseYmd(moved.date).toLocaleDateString(undefined, { weekday: 'short' }) : 'every ' + parseYmd(to).toLocaleDateString(undefined, { weekday: 'long' })} at ${clock(moved.start)}`,
+    () => { k.routines = JSON.parse(before); save(); render(); });
+}
+document.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest('.wb');
+  if (!b || e.button > 0) return;
+  const col = b.closest('.wk-col'), r = b.getBoundingClientRect();
+  Object.assign(wdrag, { b, col, id: b.dataset.id, from: b.dataset.date, x: e.clientX, y: e.clientY, gy: e.clientY - r.top, on: false, pending: true, suppress: false, type: e.pointerType });
+  if (e.pointerType !== 'mouse') wdrag.timer = setTimeout(() => { if (wdrag.pending) startWeekDrag(); }, 230);
+});
+function startWeekDrag() {
+  wdrag.on = true; wdrag.suppress = true;
+  wdrag.b.classList.add('lifted');
+  wdrag.tip = document.createElement('div'); wdrag.tip.className = 'wb-tip'; document.body.appendChild(wdrag.tip);
+  navigator.vibrate?.(8);
+}
+function weekTarget(x, y) {
+  const col = document.elementFromPoint(x, y)?.closest('.wk-col') || wdrag.col;
+  const top = col.getBoundingClientRect().top;
+  return { col, date: col.dataset.date, start: weekSlotTime(y - top - wdrag.gy) };
+}
+document.addEventListener('pointermove', (e) => {
+  if (!wdrag.pending) return;
+  const dist = Math.hypot(e.clientX - wdrag.x, e.clientY - wdrag.y);
+  if (!wdrag.on) {
+    if (wdrag.type === 'mouse' && dist > 6) startWeekDrag();
+    else if (wdrag.type !== 'mouse' && dist > 10) { clearTimeout(wdrag.timer); wdrag.pending = false; }
+    if (!wdrag.on) return;
+  }
+  const t = weekTarget(e.clientX, e.clientY);
+  const cr = wdrag.col.getBoundingClientRect(), tr = t.col.getBoundingClientRect();
+  wdrag.b.style.transform = `translate(${tr.left - cr.left}px, ${e.clientY - wdrag.y}px)`;
+  document.querySelectorAll('.wk-col.over').forEach((c) => c.classList.remove('over')); t.col.classList.add('over');
+  wdrag.tip.textContent = `${parseYmd(t.date).toLocaleDateString(undefined, { weekday: 'short' })} ${clock(t.start)}`;
+  wdrag.tip.style.transform = `translate(${e.clientX + 14}px, ${e.clientY - 34}px)`;
+});
+document.addEventListener('touchmove', (e) => { if (wdrag.on) e.preventDefault(); }, { passive: false });
+function endWeekDrag(e) {
+  clearTimeout(wdrag.timer);
+  if (!wdrag.pending) return;
+  wdrag.pending = false;
+  if (!wdrag.on) return;
+  wdrag.on = false;
+  const t = weekTarget(e.clientX, e.clientY);
+  wdrag.b.classList.remove('lifted'); wdrag.b.style.transform = ''; wdrag.tip.remove();
+  document.querySelectorAll('.wk-col.over').forEach((c) => c.classList.remove('over'));
+  if (e.type === 'pointerup') moveBlock(M.activeKid(S.h), wdrag.id, wdrag.from, t.date, t.start);
+  setTimeout(() => (wdrag.suppress = false), 50);
+}
+document.addEventListener('pointerup', endWeekDrag);
+document.addEventListener('pointercancel', endWeekDrag);
+
 let gPending = false;
 document.addEventListener('keydown', (e) => {
   const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName);
@@ -567,6 +633,20 @@ document.addEventListener('keydown', (e) => {
   if (card && !S.modal) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); return moveCard(card.dataset.card, e.key === 'ArrowRight' ? 1 : -1, card); }
     if (e.key === 'Enter') { e.preventDefault(); return ACT.editTask({ id: card.dataset.card }); }
+  }
+  /* keyboard: a focused week block moves with Alt + arrows (15 minutes / a day) */
+  const wb = document.activeElement?.closest?.('.wb');
+  if (wb && !S.modal && e.altKey && /^Arrow/.test(e.key)) {
+    e.preventDefault();
+    const k = M.activeKid(S.h), r = k.routines.find((x) => x.id === wb.dataset.id);
+    if (!r) return;
+    const from = wb.dataset.date, step = { ArrowUp: [0, -15], ArrowDown: [0, 15], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+    const start = +wb.dataset.start + step[1], to = addDays(from, step[0]);
+    moveBlock(k, r.id, from, to, start);
+    /* render() is synchronous: put focus straight back on the moved block (its id may be new if the plan was retired and replaced) */
+    const k2 = M.activeKid(S.h), now2 = k2.routines.find((x) => !x.until && x.title === r.title && (x.date ? x.date === to : x.days.includes((parseYmd(to).getDay() + 6) % 7))) || r;
+    (document.querySelector(`.wb[data-id="${now2.id}"][data-date="${to}"]`) || document.querySelector(`.wb[data-id="${now2.id}"]`))?.focus();
+    return;
   }
   if (S.modal) return;
   if (gPending) { gPending = false; const v = { t: 'today', b: 'board', w: 'week', g: 'goals', h: 'hive' }[e.key]; if (v) return go(v); }

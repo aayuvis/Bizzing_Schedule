@@ -18,7 +18,7 @@ export function week(c) {
 
   return `
   <div class="view-h">
-    <div><h1>Week</h1><p class="muted">${shortDate(days[0])} – ${shortDate(days[6])} · tap an empty space to plan, tap a block to change it</p></div>
+    <div><h1>Week</h1><p class="muted">${shortDate(days[0])} – ${shortDate(days[6])} · tap an empty space to plan, tap a block to change it, drag it to move it</p></div>
     <div class="vh-r">
       <div class="seg"><button data-act="weekNav" data-d="-7" aria-label="Previous week">${icon('left')}</button>
         <button class="${isThis ? 'on' : ''}" data-act="weekNav" data-d="0">This week</button>
@@ -46,7 +46,7 @@ export function week(c) {
             if (bottom <= 0 || top >= (TO - FROM) * PX) return '';
             const st = status(h, kid, b, d, t, now).s, x = cat(b.r.cat);
             return `<button class="wb st-${st} ${cl.has(b.r.id) ? 'clash' : ''} ${bottom - top < 30 ? 'tiny' : ''}" style="top:${top}px;height:${Math.max(18, bottom - top - 2)}px;--c:${x.color};--s:${x.soft}"
-              data-act="editRoutine" data-id="${b.r.id}" data-date="${d}" title="${esc(b.r.title)} · ${clock(b.start)}–${clock(b.start + b.dur)}${cl.has(b.r.id) ? ' · clashes with another block' : ''}">
+              data-act="editRoutine" data-id="${b.r.id}" data-date="${d}" data-start="${b.start}" title="${esc(b.r.title)} · ${clock(b.start)}–${clock(b.start + b.dur)}${cl.has(b.r.id) ? ' · clashes with another block' : ''} · drag to move">
               <b>${iconOf(b.r)} ${esc(b.r.title)}</b><small>${clock(b.start)} · ${dur(b.dur)}</small>${b.r.anchor ? icon('lock', 'wb-lock') : ''}</button>`;
           }).join('')}
           ${d === t && now > FROM && now < TO ? `<div class="wk-now" style="top:${nowTop}px"></div>` : ''}

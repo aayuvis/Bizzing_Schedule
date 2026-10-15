@@ -58,6 +58,32 @@ export function addRoutine(kid, r, today = ymd()) {
 
 /* Retire, don't delete, once there is history: last week's numbers were made
    against this routine and must not change because it is gone this week. */
+/* Move a plan by dragging it on the Week: a new start, and (dropped in another
+   column) a new day. A weekly plan moves for every week from now on; a one-off
+   moves to that date. Exactly the editor's rule: a plan that already has history
+   is retired and replaced, so last week's numbers stay what they were.
+   Returns the moved plan, or null when nothing changed or it may not move. */
+export function moveRoutine(kid, id, { from, to, start }, today = ymd()) {
+  const r = kid.routines.find((x) => x.id === id);
+  if (!r || to < today) return null;                         // the past is not rearranged
+  start = Math.max(0, Math.min(24 * 60 - r.dur, Math.round(start / 15) * 15));
+  if (r.date) {
+    if (r.date === to && r.start === start) return null;
+    if (r.date < today) return null;
+    Object.assign(r, { date: to, start });
+    return r;
+  }
+  const a = dow(from), b = dow(to);
+  const days = a === b || r.days.includes(b) ? r.days : [...r.days.filter((d) => d !== a), b].sort();
+  if (r.start === start && String(days) === String(r.days)) return null;
+  if (r.from < today) {
+    removeRoutine(kid, r.id, today);
+    return addRoutine(kid, { ...r, days, start, from: today }, today) || kid.routines.at(-1);
+  }
+  Object.assign(r, { days, start });
+  return r;
+}
+
 export function removeRoutine(kid, id, today = ymd()) {
   const r = kid.routines.find((x) => x.id === id);
   if (!r) return;
