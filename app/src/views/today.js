@@ -2,7 +2,7 @@
 
 import { longDate, clock, dur, partOfDay } from '../time.js';
 import { cat, CATS, APPS } from '../cats.js';
-import { blocksFor, status, dayScore, tasksFor, goalProgress, cheer, catMinutes } from '../model.js';
+import { blocksFor, status, dayScore, tasksFor, goalProgress, cheer, catMinutes, periodNow } from '../model.js';
 import { appMinutes } from '../activity.js';
 import { esc, ring, icon, lozenge, plural, hexPath } from '../ui.js';
 import { iconOf } from '../icons.js';
@@ -117,14 +117,16 @@ function block(c, b) {
   const how = st.how === 'app' ? `<span class="how">auto · ${APPS[r.app].name}</span>` : st.how === 'auto' ? `<span class="how">happens anyway</span>` : '';
   const appBar = r.app ? (() => { const m = appMinutes(c.h, c.kid, c.today)[r.app] || 0; return `<div class="app-bar"><div class="bar thin"><i style="width:${Math.min(100, Math.round(m / r.dur * 100))}%"></i></div><small>${m} of ${r.dur} min in ${APPS[r.app].name}</small></div>`; })() : '';
   const canTick = !r.auto && !r.app;
-  return `<li class="blk st-${st.s}" style="--c:${x.color};--s:${x.soft}">
+  /* a block that has not been checked in can be dragged to a new time today (not a grown-up's fixed time, for a child) */
+  const canDrag = ['later', 'now', 'open'].includes(st.s) && !r.auto && !(r.anchor && !c.S.grown);
+  return `<li class="blk st-${st.s} ${canDrag ? 'can-drag' : ''}" style="--c:${x.color};--s:${x.soft}" data-id="${r.id}" data-start="${b.start}">
     <div class="blk-time">${clock(b.start)}<small>${dur(b.dur)}</small></div>
     <div class="blk-body">
       <div class="blk-top">
         <button class="blk-t" data-act="editRoutine" data-id="${r.id}">${iconOf(r)} ${esc(r.title)} ${r.anchor ? `<span class="anchor" title="Set by a grown-up">${icon('lock')}</span>` : ''}</button>
         ${S[st.s] ? `<span class="st st-${st.s}">${S[st.s]}</span>` : ''}${how}
       </div>
-      ${appBar}
+      ${appBar}${r.cat === 'school' ? (() => { const { cur, next } = periodNow(r, c.today, c.now); return cur || next ? `<p class="tt-line">📚 ${cur ? `Now: <b>${esc(cur.t)}</b> until ${clock(cur.e)}` : `Next: <b>${esc(next.t)}</b> at ${clock(next.s)}`}</p>` : ''; })() : ''}
     </div>
     <div class="blk-act">
       ${canTick ? `<button class="tick lg ${st.s === 'done' ? 'on' : ''}" data-act="mark" data-id="${r.id}" data-s="${st.s === 'done' ? '' : 'done'}" aria-label="${st.s === 'done' ? 'Undo' : 'Mark done'}">${icon('check')}</button>

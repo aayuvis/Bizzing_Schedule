@@ -159,5 +159,25 @@ const T = '2026-09-23'; // Wednesday
   ok('a longer plan with history is retired and replaced too', sized && sized.id !== moved.id && sized.dur === 90 && moved.dur === 60);
 }
 
+/* 9. today-only moves and the school timetable */
+{
+  const k = M.newKid({ name: 'Ola' });
+  const r = M.addRoutine(k, { title: 'Piano', cat: 'create', days: [2], start: 17 * 60, dur: 30 }, '2026-09-01');
+  M.shift(k, r.id, T, 17 * 60 + 47);
+  ok('dragging on Today moves it for today only', M.blocksFor(k, T)[0].start === 17 * 60 + 45 && r.start === 17 * 60 && M.blocksFor(k, addDays(T, 7))[0].start === 17 * 60);
+  M.shift(k, r.id, T, 17 * 60);
+  ok('dragged back to its usual time, nothing is left in the log', !k.log[T]);
+  const sc = M.addRoutine(k, { title: 'School', cat: 'school', days: [0, 1, 2, 3, 4], start: 8 * 60, dur: 390, anchor: true, auto: true }, '2026-09-01');
+  M.setPeriods(sc, [2], [{ t: 'Maths', s: 9 * 60, e: 10 * 60 }, { t: 'Art', s: 8 * 60, e: 9 * 60 }, { t: '', s: 10 * 60, e: 11 * 60 }, { t: 'Bad', s: 12 * 60, e: 11 * 60 }]);
+  ok('a timetable keeps real periods, in time order', M.periodsFor(sc, T).map((p) => p.t).join() === 'Art,Maths');
+  const pn = M.periodNow(sc, T, 9 * 60 + 10);
+  ok('it knows the period now and the next one', pn.cur.t === 'Maths' && !pn.next && M.periodNow(sc, T, 7 * 60).next.t === 'Art');
+  M.setPeriods(sc, sc.days, [{ t: 'Reading', s: 8 * 60, e: 8 * 60 + 30 }]);
+  ok('"same on every school day" fills each school day', sc.days.every((d) => sc.tt[d][0].t === 'Reading'));
+  M.removeRoutine(k, sc.id, T); const again = M.addRoutine(k, { ...sc, start: 8 * 60 + 15 }, T);
+  ok('the timetable travels with a school plan that is replaced', again.tt && again.tt[0][0].t === 'Reading' && again.tt !== sc.tt);
+  ok('the timetable never changes when school is or how it counts', sc.start === 8 * 60 && sc.dur === 390 && sc.auto);
+}
+
 if (fail) { console.log(`model: ${fail} of ${n} FAILED`); process.exit(1); }
 console.log(`model: all ${n} passed`);

@@ -240,6 +240,17 @@ const ACT = {
     M.shift(c.kid, d.id, c.today, Math.max(b.start, c.now) + (+d.m || 15));
     save(); S.modal = null; render(); toast(`${b.r.title} moved to ${clock(M.blocksFor(c.kid, c.today).find((x) => x.r.id === d.id).start)} today`);
   },
+  ttDay: (d) => { S.modal = { ...S.modal, day: +d.v, edit: false }; render(); },
+  ttEdit: () => { S.modal = { ...S.modal, edit: true }; render(); },
+  ttView: () => { S.modal = { ...S.modal, edit: false }; render(); },
+  ttAdd: (d, el) => {   /* add a row in place, so what is already typed stays typed */
+    const ol = el.closest('form').querySelector('.tt-rows'), i = +ol.dataset.n, last = ol.lastElementChild;
+    const s0 = last ? last.querySelector('[name$=e]').value : '09:00';
+    const [h, m] = s0.split(':').map(Number), e0 = `${String(Math.min(23, h + (m + 45 >= 60 ? 1 : 0))).padStart(2, '0')}:${String((m + 45) % 60).padStart(2, '0')}`;
+    ol.insertAdjacentHTML('beforeend', `<li><input name="p${i}t" placeholder="Subject" maxlength="40" aria-label="Subject"><input type="time" name="p${i}s" value="${s0}" step="300" aria-label="Starts"><span>–</span><input type="time" name="p${i}e" value="${e0}" step="300" aria-label="Ends"><button type="button" class="icon-btn" data-act="ttRm" aria-label="Remove">✕</button></li>`);
+    ol.dataset.n = i + 1; ol.lastElementChild.querySelector('input').focus();
+  },
+  ttRm: (d, el) => el.closest('li').remove(),
   blockMenu: (d) => { S.modal = { type: 'blockMenu', id: d.id }; render(); },
   wrapUp: () => { S.modal = { type: 'wrap' }; render(); },
   wrapMark: (d, el) => { const c = ctx(); M.mark(c.kid, d.id, c.today, d.s); save(); if (d.s === 'done') burstAt(el, 12); render(); },
@@ -254,6 +265,8 @@ const ACT = {
   editRoutine: (d) => {
     const k = kidOf(d.kid), r = k.routines.find((x) => x.id === d.id);
     if (!r) return;
+    /* a school block opens its timetable; "School hours" (data-hours) opens the plan itself */
+    if (r.cat === 'school' && !d.hours) { const day = d.date ? (parseYmd(d.date).getDay() + 6) % 7 : (parseYmd(ctx().today).getDay() + 6) % 7; S.modal = { type: 'school', id: r.id, kid: d.kid || '', day: r.days.includes(day) ? day : r.days[0] ?? 0 }; render(); return; }
     S.modal = { type: 'routine', id: r.id, kid: d.kid || '', r: { ...r } }; render();
   },
   rmRoutine: (d) => {
@@ -363,6 +376,13 @@ function moveCard(id, dir, el) {
 /* ─── forms ──────────────────────────────────────────────────────────── */
 
 const FORM = {
+  timetable: (v) => {
+    const c = ctx(), r = c.kid.routines.find((x) => x.id === S.modal.id);
+    const rows = [];
+    for (let i = 0; i < 60; i++) if (`p${i}t` in v) rows.push({ t: v[`p${i}t`].trim(), s: hm(v[`p${i}s`]), e: hm(v[`p${i}e`]) });
+    M.setPeriods(r, v.all ? r.days : [S.modal.day], rows);
+    save(); S.modal = { ...S.modal, edit: false }; render(); toast(v.all ? '📚 Timetable saved for every school day' : '📚 Timetable saved');
+  },
   quick: (v, f) => {
     const c = ctx(); const text = (v.q || '').trim(); if (!text) return;
     const p = parse(text, c.today);
@@ -468,6 +488,7 @@ document.addEventListener('click', (e) => {
   if (el.dataset.act === 'closeBg' && e.target !== el) return;
   if (el.closest('.kcard') && drag.suppress) return;
   if (el.closest('.wb') && wdrag.suppress) return;
+  if (el.closest('.blk') && tdrag.suppress) return;
   const fn = ACT[el.dataset.act];
   if (fn) { e.preventDefault(); fn(el.dataset, el, e); }
 });
@@ -557,6 +578,58 @@ function endDrag(e) {
 }
 document.addEventListener('pointerup', endDrag);
 document.addEventListener('pointercancel', endDrag);
+
+/* Today drag: the timeline is a list, not a clock face, so a block is dragged
+   down for later and up for earlier (a minute per pixel, 15-minute steps),
+   for TODAY only — M.shift, exactly what "15 min later" does. The weekly plan
+   is untouched. */
+const tdrag = { suppress: false };
+const TODAY_STEP = (dy) => Math.round(dy / 15) * 15;
+document.addEventListener('pointerdown', (e) => {
+  const li = e.target.closest('.blk.can-drag');
+  if (!li || e.button > 0 || e.target.closest('.blk-act')) return;
+  Object.assign(tdrag, { li, id: li.dataset.id, start0: +li.dataset.start, x: e.clientX, y: e.clientY, on: false, pending: true, suppress: false, type: e.pointerType });
+  if (e.pointerType !== 'mouse') tdrag.timer = setTimeout(() => { if (tdrag.pending) startTodayDrag(); }, 230);
+});
+function startTodayDrag() {
+  tdrag.on = true; tdrag.suppress = true; tdrag.li.classList.add('lifted');
+  tdrag.tip = document.createElement('div'); tdrag.tip.className = 'wb-tip'; document.body.appendChild(tdrag.tip);
+  navigator.vibrate?.(8);
+}
+document.addEventListener('pointermove', (e) => {
+  if (!tdrag.pending) return;
+  const dist = Math.hypot(e.clientX - tdrag.x, e.clientY - tdrag.y);
+  if (!tdrag.on) {
+    if (tdrag.type === 'mouse' && dist > 6) startTodayDrag();
+    else if (tdrag.type !== 'mouse' && dist > 10) { clearTimeout(tdrag.timer); tdrag.pending = false; }
+    if (!tdrag.on) return;
+  }
+  const dy = e.clientY - tdrag.y, step = TODAY_STEP(dy);
+  tdrag.li.style.transform = `translateY(${dy}px)`;
+  tdrag.tip.textContent = `${step >= 0 ? 'later' : 'earlier'} · ${clock(Math.max(0, tdrag.start0 + step))} today`;
+  tdrag.tip.style.transform = `translate(${e.clientX + 14}px, ${e.clientY - 34}px)`;
+});
+document.addEventListener('touchmove', (e) => { if (tdrag.on) e.preventDefault(); }, { passive: false });
+function shiftToday(id, start) {
+  const c = ctx(), before = JSON.stringify(c.kid.log[c.today] || null);
+  const r = c.kid.routines.find((x) => x.id === id);
+  M.shift(c.kid, id, c.today, start); save(); render();
+  const b = M.blocksFor(c.kid, c.today).find((x) => x.r.id === id);
+  toast(`${r.title} at ${clock(b.start)} today`, () => { const v = JSON.parse(before); if (v) c.kid.log[c.today] = v; else delete c.kid.log[c.today]; save(); render(); });
+}
+function endTodayDrag(e) {
+  clearTimeout(tdrag.timer);
+  if (!tdrag.pending) return;
+  tdrag.pending = false;
+  if (!tdrag.on) return;
+  tdrag.on = false;
+  tdrag.li.classList.remove('lifted'); tdrag.li.style.transform = ''; tdrag.tip.remove();
+  const step = TODAY_STEP(e.clientY - tdrag.y);
+  if (e.type === 'pointerup' && step) shiftToday(tdrag.id, tdrag.start0 + step);
+  setTimeout(() => (tdrag.suppress = false), 50);
+}
+document.addEventListener('pointerup', endTodayDrag);
+document.addEventListener('pointercancel', endTodayDrag);
 
 /* Week drag: pick a block up and drop it at a new time (15-minute steps) or on
    another day. Same feel as the board — a mouse after 6px, a finger after a
@@ -659,6 +732,14 @@ document.addEventListener('keydown', (e) => {
     /* render() is synchronous: put focus straight back on the moved block (its id may be new if the plan was retired and replaced) */
     const k2 = M.activeKid(S.h), now2 = k2.routines.find((x) => !x.until && x.title === r.title && (x.date ? x.date === to : x.days.includes((parseYmd(to).getDay() + 6) % 7))) || r;
     (document.querySelector(`.wb[data-id="${now2.id}"][data-date="${to}"]`) || document.querySelector(`.wb[data-id="${now2.id}"]`))?.focus();
+    return;
+  }
+  /* keyboard: Alt + Up / Down on a Today block moves it 15 minutes, today only */
+  const tb = document.activeElement?.closest?.('.blk.can-drag');
+  if (tb && !S.modal && e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault();
+    shiftToday(tb.dataset.id, +tb.dataset.start + (e.key === 'ArrowDown' ? 15 : -15));
+    document.querySelector(`.blk[data-id="${tb.dataset.id}"] .blk-t`)?.focus();
     return;
   }
   if (S.modal) return;

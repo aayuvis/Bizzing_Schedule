@@ -29,7 +29,15 @@ export function demoHousehold(today = ymd(), now = new Date().getHours() * 60 + 
   const a = newKid({ name: 'Anaya', band: '9-11', avatar: 'melody' });
   a.created = start;
   const R = (x) => addRoutine(a, { ...x, from: start }, start);
-  R({ title: 'School', cat: 'school', days: WD, start: H(8, 15), dur: 395, anchor: true, auto: true, by: 'grown' });
+  const school = R({ title: 'School', cat: 'school', days: WD, start: H(8, 15), dur: 395, anchor: true, auto: true, by: 'grown' });
+  /* a sample timetable, so the School view has something to show */
+  const P = (t, a1, a2, b1, b2) => ({ t, s: H(a1, a2), e: H(b1, b2) });
+  const morning = [P('Registration', 8, 15, 8, 30), P('Maths', 8, 30, 9, 30), P('English', 9, 30, 10, 30), P('Break', 10, 30, 10, 50)];
+  const after = [P('Lunch', 12, 0, 12, 45), P('Art', 12, 45, 13, 45), P('Reading time', 13, 45, 14, 30)];
+  school.tt = {};
+  [['Science', 'Hindi'], ['Geography', 'PE'], ['Science', 'Music'], ['History', 'Computing'], ['PE', 'Assembly']].forEach(([x, y], d) => {
+    school.tt[d] = [...morning, P(x, 10, 50, 11, 25), P(y, 11, 25, 12, 0), ...after];
+  });
   const bee = R({ title: 'Spelling on Bizzing Bee', cat: 'bizzing', days: WD, start: H(16), dur: 20, app: 'bee' });
   R({ title: 'Homework', cat: 'study', days: WD, start: H(16, 30), dur: 45, anchor: true, by: 'grown' });
   const piano = R({ title: 'Piano practice', cat: 'create', days: [0, 2, 4], start: H(17, 30), dur: 30 });

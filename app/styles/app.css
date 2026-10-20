@@ -262,6 +262,19 @@ code { font-size: 13px; background: var(--honey-xl); padding: 1px 6px; border-ra
 .blk::before { content: ''; position: absolute; left: 61px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--card); box-shadow: inset 0 0 0 3px var(--c); z-index: 1; }
 .blk.st-done::before { background: var(--c); }
 .blk.st-now::before { background: var(--c); box-shadow: 0 0 0 5px var(--s); }
+.blk.can-drag .blk-body { cursor: grab; touch-action: pan-y; }
+.blk.lifted { z-index: 20; pointer-events: none; transition: none; } .blk.lifted .blk-body { box-shadow: var(--sh-2); cursor: grabbing; }
+.tt-line { margin-top: 4px; font-size: 13px; color: var(--ink-2); }
+.tt-days { margin: 4px 0 6px; flex-wrap: wrap; }
+.tt-list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 6px; }
+.tt-list li { display: grid; grid-template-columns: 62px 1fr auto; gap: 12px; align-items: center; padding: 8px 12px; border-radius: calc(10px * var(--rk)); background: var(--col); }
+.tt-list li.now { background: var(--honey-xl); box-shadow: inset 3px 0 0 var(--honey); } .tt-list li.past { opacity: .55; }
+.tt-time { font-weight: 800; font-size: 13px; line-height: 1.2; } .tt-time small { display: block; color: var(--muted); font-weight: 600; }
+.tt-rows { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+.tt-rows li { display: grid; grid-template-columns: minmax(0, 1fr) 124px auto 124px auto; gap: 6px; align-items: center; }
+.tt-rows input { min-width: 0; }
+.tt-empty { margin: 14px 0; }
+@media (max-width: 520px) { .tt-rows li { grid-template-columns: minmax(0, 1fr) 104px 104px 28px; gap: 4px; } .tt-rows li span { display: none; } .tt-rows input { font-size: 13px; padding-left: 6px; padding-right: 4px; } }
 .blk-time { text-align: right; font-weight: 800; font-size: 14px; line-height: 1.2; color: var(--ink-2); }
 .blk-time small { display: block; font-weight: 600; color: var(--muted); font-size: 12px; }
 .blk-body { background: var(--s); border-radius: calc(12px * var(--rk)); padding: 10px 14px; min-width: 0; margin-left: 10px; transition: opacity .2s; }

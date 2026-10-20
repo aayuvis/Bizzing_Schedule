@@ -51,6 +51,7 @@ export function addRoutine(kid, r, today = ymd()) {
     days: r.date ? [] : (r.days && r.days.length ? [...r.days].sort() : [0, 1, 2, 3, 4, 5, 6]),
     date: r.date || null, from: r.from || today, until: null,
     anchor: !!r.anchor, auto: !!r.auto, app: r.app || null, by: r.by || 'kid', icon: r.icon || null,
+    ...(r.tt ? { tt: JSON.parse(JSON.stringify(r.tt)) } : {}),   // a school timetable travels with its plan
   };
   kid.routines.push(x);
   return x;
@@ -139,10 +140,29 @@ export function mark(kid, rid, date, s) {
   if (!Object.keys(L).length) delete kid.log[date];
 }
 
+/* ─── the school timetable: periods inside a school block, per weekday ───
+   r.tt = { 0: [{ t: 'Maths', s: 495, e: 540 }, …], … } (0 = Monday). It only
+   describes the block; it never changes when the block is or how it counts. */
+export const periodsFor = (r, date) => ((r.tt || {})[dow(date)] || []).slice().sort((a, b) => a.s - b.s);
+export function periodNow(r, date, now) {
+  const ps = periodsFor(r, date);
+  return { cur: ps.find((p) => p.s <= now && now < p.e) || null, next: ps.find((p) => p.s > now) || null };
+}
+export function setPeriods(r, days, rows) {
+  const clean = rows.filter((p) => p.t && p.e > p.s).map((p) => ({ t: p.t.slice(0, 40), s: p.s, e: p.e })).sort((a, b) => a.s - b.s);
+  r.tt = r.tt || {};
+  for (const d of days) { if (clean.length) r.tt[d] = clean.map((p) => ({ ...p })); else delete r.tt[d]; }
+  if (!Object.keys(r.tt).length) delete r.tt;
+}
+
 export function shift(kid, rid, date, start) {
   const L = kid.log[date] || (kid.log[date] = {});
   const e = L[rid] || (L[rid] = {});
-  e.mv = Math.max(0, Math.min(23 * 60 + 30, start));
+  const r = kid.routines.find((x) => x.id === rid);
+  e.mv = Math.max(0, Math.min(24 * 60 - (r ? r.dur : 30), 23 * 60 + 30, Math.round(start / 5) * 5));
+  if (r && e.mv === r.start) delete e.mv;   // dragged back to its usual time: no move left behind
+  if (!Object.keys(e).length) delete L[rid];
+  if (!Object.keys(L).length) delete kid.log[date];
 }
 
 /* ─── adherence ───────────────────────────────────────────────────────── */

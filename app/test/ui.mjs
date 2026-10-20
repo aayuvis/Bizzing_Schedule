@@ -251,6 +251,37 @@ async function run(label, vp, isMobile) {
   await shot('8-focus');
   await page.keyboard.press('Escape');
   ok(`${label}: a sprint stopped in the first minute records nothing`, await page.evaluate(() => window.__bzs.S.h.kids[0].focus.length === 5));
+  // Today: drag a block down for later (today only); Undo; keyboard; the school timetable
+  await page.goto(`${URL0}?now=${NOW}#today`);
+  await page.waitForSelector('.timeline');
+  const piano = () => page.evaluate(() => { const k = window.__bzs.S.h.kids[0], r = k.routines.find((x) => x.title === 'Piano practice'); return { mv: (k.log['2026-09-23'] || {})[r.id]?.mv ?? null, start: r.start }; });
+  if (!isMobile) {
+    const pb = await page.locator('.blk.can-drag', { hasText: 'Piano practice' }).locator('.blk-body').boundingBox();
+    await page.mouse.move(pb.x + 40, pb.y + pb.height / 2); await page.mouse.down();
+    await page.mouse.move(pb.x + 40, pb.y + pb.height / 2 + 10, { steps: 2 });
+    await page.mouse.move(pb.x + 40, pb.y + pb.height / 2 + 30, { steps: 6 }); await page.mouse.up();
+    const p1 = await piano();
+    ok(`${label}: dragging a Today block down moves it later, today only`, p1.mv === 18 * 60 && p1.start === 17 * 60 + 30, JSON.stringify(p1));
+    ok(`${label}: and a drag does not open the editor`, !(await page.locator('form[data-form=routine]').count()));
+    await page.click('#toast button');
+    ok(`${label}: Undo puts it back on Today`, (await piano()).mv === null);
+  }
+  await page.locator('.blk', { hasText: 'Piano practice' }).locator('.blk-t').focus();
+  await page.keyboard.press('Alt+ArrowDown');
+  ok(`${label}: Alt + Down moves a Today block 15 minutes later`, (await piano()).mv === 17 * 60 + 45, JSON.stringify(await piano()));
+  await page.evaluate(() => { const k = window.__bzs.S.h.kids[0]; delete k.log['2026-09-23'][k.routines.find((x) => x.title === 'Piano practice').id]; window.__bzs.render(); });
+  await page.click('.blk .blk-t:has-text("School")');
+  await page.waitForSelector('.sh-school');
+  ok(`${label}: tapping the school block opens its timetable`, (await page.locator('.tt-list li').count()) === 9);
+  await page.click('.tt-days button:has-text("Fr")');
+  ok(`${label}: a day pill shows that day's periods`, (await page.locator('.tt-list li', { hasText: 'Assembly' }).count()) === 1);
+  await page.click('.sh-school button:has-text("Edit timetable")');
+  await page.fill('input[name=p0t]', 'Form time');
+  await page.click('form[data-form=timetable] button:has-text("Save")');
+  ok(`${label}: an edited period saves`, (await page.locator('.tt-list li', { hasText: 'Form time' }).count()) === 1 && (await page.locator('.tt-list li', { hasText: 'Registration' }).count()) === 0);
+  await noOverflow('school timetable'); await shot('10-school');
+  await page.keyboard.press('Escape');
+
   // a medal's companion: celebrated once, worn with one tap
   await page.evaluate(() => { const k = window.__bzs.S.h.kids[0]; k.badges.lantern = k.badges.lantern || '2026-01-01';
     window.__bzs.S.modal = { type: 'badge', b: { id: 'lantern', av: 'samurai', art: 'badge-lantern', name: 'Laser Focus', desc: 'Finish 5 focus sprints.' } }; window.__bzs.render(); });

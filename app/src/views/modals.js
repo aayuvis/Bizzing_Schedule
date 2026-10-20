@@ -2,7 +2,7 @@
 
 import { DAY_SHORT, clock, dur, hhmm, niceDate, addDays, ymd, weekStart } from '../time.js';
 import { CATS, CAT_IDS, APPS, cat } from '../cats.js';
-import { blocksFor, status, KR_SOURCES, BANDS } from '../model.js';
+import { blocksFor, status, KR_SOURCES, BANDS, periodsFor } from '../model.js';
 import { parse } from '../parse.js';
 import { GOAL_TEMPLATES } from './goals.js';
 import { esc, icon, avatar, ring, plural } from '../ui.js';
@@ -12,7 +12,7 @@ import { iconOf, iconField, suggestIcon } from '../icons.js';
 export function modal(c) {
   const m = c.S.modal;
   if (!m) return '';
-  const body = { quick, routine, task, goal, blockMenu, wrap, focus, kudosOpen, badge, kid, huddle, help, confirm }[m.type](c, m);
+  const body = { quick, routine, task, goal, blockMenu, wrap, focus, kudosOpen, badge, kid, huddle, help, confirm, school }[m.type](c, m);
   const wide = ['goal', 'huddle', 'focus'].includes(m.type);
   return `<div class="overlay ${m.type === 'focus' ? 'dark' : ''}" data-act="closeBg"><div class="sheet ${wide ? 'wide' : ''} sh-${m.type}" role="dialog" aria-modal="true">${body}</div></div>`;
 }
@@ -74,6 +74,38 @@ function routine(c, m) {
     <footer class="sh-f">${m.id && !locked ? `<button type="button" class="btn danger ghost" data-act="rmRoutine" data-id="${m.id}">${icon('trash')} Remove</button>` : '<span></span>'}
       ${locked ? `<button type="button" class="btn" data-act="close">OK</button>` : `<button class="btn">${m.id ? 'Save' : 'Add to plan'}</button>`}</footer>
   </form>`;
+}
+
+/* ── school: the timetable inside the school block ──
+   A view first (which day, which period is on now, what's next), and a simple
+   editor for the periods. It never moves the school block itself: that is the
+   grown-up's fixed time, changed from "School hours". */
+function school(c, m) {
+  const r = c.kid.routines.find((x) => x.id === m.id);
+  const days = r.days.length ? r.days : [0, 1, 2, 3, 4];
+  const day = m.day ?? days[0];
+  const date = addDays(weekStart(c.today), day), isToday = date === c.today;
+  const ps = periodsFor(r, date);
+  const pills = `<div class="seg sm tt-days">${days.map((d) => `<button type="button" class="${d === day ? 'on' : ''}" data-act="ttDay" data-v="${d}">${DAY_SHORT[d]}</button>`).join('')}</div>`;
+  const hours = `<p class="muted small">${clock(r.start)} – ${clock(r.start + r.dur)} ${r.anchor ? '· 🔒 set by a grown-up' : ''}</p>`;
+  if (m.edit) {
+    const row = (p, i) => `<li><input name="p${i}t" value="${esc(p.t)}" placeholder="Subject" maxlength="40" aria-label="Subject"><input type="time" name="p${i}s" value="${hhmm(p.s)}" step="300" aria-label="Starts"><span>–</span><input type="time" name="p${i}e" value="${hhmm(p.e)}" step="300" aria-label="Ends"><button type="button" class="icon-btn" data-act="ttRm" aria-label="Remove">${icon('close')}</button></li>`;
+    const start = ps.length ? ps : [{ t: '', s: r.start, e: r.start + 45 }];
+    return `${head(`${iconOf(r)} Edit ${DAY_SHORT[day]} timetable`, 'Subjects and times. Leave a subject empty to drop that row.')}
+    <form data-form="timetable" class="form">${hours}
+      <ol class="tt-rows" data-n="${start.length}">${start.map(row).join('')}</ol>
+      <button type="button" class="btn ghost sm fit" data-act="ttAdd">+ Add a period</button>
+      <label class="tog"><input type="checkbox" name="all"><span>Same on every school day</span></label>
+      <footer class="sh-f"><button type="button" class="btn ghost" data-act="ttView">Cancel</button><button class="btn">Save</button></footer>
+    </form>`;
+  }
+  const { cur, next } = isToday ? { cur: ps.find((p) => p.s <= c.now && c.now < p.e), next: ps.find((p) => p.s > c.now) } : {};
+  return `${head(`${iconOf(r)} ${esc(r.title)}`, isToday ? (cur ? `Now: ${esc(cur.t)} until ${clock(cur.e)}` : next ? `Next: ${esc(next.t)} at ${clock(next.s)}` : 'Your timetable') : 'Your timetable')}
+    ${pills}${hours}
+    ${ps.length ? `<ol class="tt-list">${ps.map((p) => `<li class="${cur === p ? 'now' : isToday && p.e <= c.now ? 'past' : ''}"><span class="tt-time">${clock(p.s)}<small>${clock(p.e)}</small></span><b>${esc(p.t)}</b>${cur === p ? '<span class="st st-now">Now</span>' : ''}</li>`).join('')}</ol>`
+      : `<p class="tt-empty muted">No timetable for ${DAY_SHORT[day]} yet. Add your periods to see what's on now and what's next.</p>`}
+    <footer class="sh-f">${r.anchor && !c.S.grown ? '<span></span>' : `<button type="button" class="btn ghost sm" data-act="editRoutine" data-id="${r.id}" data-hours="1">${icon('edit')} School hours</button>`}
+      <button type="button" class="btn" data-act="ttEdit">${ps.length ? 'Edit timetable' : '+ Add periods'}</button></footer>`;
 }
 
 /* ── task editor ── */
